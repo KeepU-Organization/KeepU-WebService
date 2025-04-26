@@ -1,8 +1,7 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.UserEntity;
+import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,26 +10,29 @@ import java.util.List;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
-    public List<UserEntity> getAllUsers() {
-        return userService.getAllUsers();
+    public List<User> getAll() {
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
-    public UserEntity getUserById(@PathVariable Integer id) {
-        return userService.getUserById(id);
+    public User getById(@PathVariable Integer id) {
+        return userService.findById(id);
     }
 
     @PostMapping
-    public UserEntity saveUser(@RequestBody UserEntity user) {
-        return userService.saveUser(user);
+    public User save(@RequestBody User user) {
+        return userService.save(user);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Integer id) {
-        userService.deleteUser(id);
+    public void delete(@PathVariable Integer id) {
+        userService.deleteById(id);
     }
 }
