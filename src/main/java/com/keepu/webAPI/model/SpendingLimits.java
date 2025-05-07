@@ -6,16 +6,17 @@ import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "Spending_limits")
+@Table(name = "spending_limits")
 public class SpendingLimits {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_limit;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_wallet")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
 
-    private BigDecimal max_amount;
+    @Column(name = "max_amount", nullable = false)
+    private BigDecimal maxAmount;
 }

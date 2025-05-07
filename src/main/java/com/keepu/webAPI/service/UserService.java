@@ -1,32 +1,30 @@
 package com.keepu.webAPI.service;
 
+import com.keepu.webAPI.dto.request.CreateUserRequest;
+import com.keepu.webAPI.dto.response.UserResponse;
+import com.keepu.webAPI.exception.EmailAlreadyExistsException;
+import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    @Transactional
+    public UserResponse registerUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.email())) {
+            throw new EmailAlreadyExistsException("The email " + request.email() + " is already registered.");
+        }
 
-    public List<User> findAll() {
-        return userRepository.findAll();
-    }
-
-    public User findById(Integer id) {
-        return userRepository.findById(id).orElse(null);
-    }
-
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
-    public void deleteById(Integer id) {
-        userRepository.deleteById(id);
+        User newUser = userMapper.toUserEntity(request);
+        User savedUser = userRepository.save(newUser);
+        return userMapper.toUserResponse(savedUser);
     }
 }

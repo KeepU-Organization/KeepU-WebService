@@ -1,38 +1,22 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.Children;
+import com.keepu.webAPI.dto.request.CreateChildrenRequest;
+import com.keepu.webAPI.dto.response.ChildrenResponse;
 import com.keepu.webAPI.service.ChildrenService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
-@RequestMapping("/api/children")
+@RequestMapping("/api/v1/children")
+@RequiredArgsConstructor
 public class ChildrenController {
 
     private final ChildrenService childrenService;
 
-    public ChildrenController(ChildrenService childrenService) {
-        this.childrenService = childrenService;
-    }
-
-    @GetMapping
-    public List<Children> getAll() {
-        return childrenService.findAll();
-    }
-
-    @GetMapping("/{id}")
-    public Children getById(@PathVariable Integer id) {
-        return childrenService.findById(id);
-    }
-
     @PostMapping
-    public Children save(@RequestBody Children child) {
-        return childrenService.save(child);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        childrenService.deleteById(id);
+    public ResponseEntity<ChildrenResponse> create(@Valid @RequestBody CreateChildrenRequest request) {
+        return ResponseEntity.ok(childrenService.createChildren(request));
     }
 }

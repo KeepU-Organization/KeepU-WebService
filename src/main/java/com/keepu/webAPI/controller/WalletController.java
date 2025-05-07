@@ -1,38 +1,27 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.Wallet;
+import com.keepu.webAPI.dto.request.CreateWalletRequest;
+import com.keepu.webAPI.dto.response.WalletResponse;
 import com.keepu.webAPI.service.WalletService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/wallets")
+@RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
 
-    public WalletController(WalletService walletService) {
-        this.walletService = walletService;
-    }
-
-    @GetMapping
-    public List<Wallet> getAll() {
-        return walletService.findAll();
+    @PostMapping
+    public ResponseEntity<WalletResponse> create(@Valid @RequestBody CreateWalletRequest request) {
+        return ResponseEntity.ok(walletService.createWallet(request));
     }
 
     @GetMapping("/{id}")
-    public Wallet getById(@PathVariable Integer id) {
-        return walletService.findById(id);
-    }
-
-    @PostMapping
-    public Wallet save(@RequestBody Wallet wallet) {
-        return walletService.save(wallet);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        walletService.deleteById(id);
+    public ResponseEntity<WalletResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(walletService.getWalletById(id));
     }
 }

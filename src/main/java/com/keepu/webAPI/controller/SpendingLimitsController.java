@@ -1,38 +1,27 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.SpendingLimits;
+import com.keepu.webAPI.dto.request.CreateSpendingLimitRequest;
+import com.keepu.webAPI.dto.response.SpendingLimitResponse;
 import com.keepu.webAPI.service.SpendingLimitsService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/spending-limits")
+@RequiredArgsConstructor
 public class SpendingLimitsController {
 
-    private final SpendingLimitsService service;
+    private final SpendingLimitsService spendingLimitsService;
 
-    public SpendingLimitsController(SpendingLimitsService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<SpendingLimits> getAll() {
-        return service.findAll();
+    @PostMapping
+    public ResponseEntity<SpendingLimitResponse> create(@Valid @RequestBody CreateSpendingLimitRequest request) {
+        return ResponseEntity.ok(spendingLimitsService.createSpendingLimit(request));
     }
 
     @GetMapping("/{id}")
-    public SpendingLimits getById(@PathVariable Integer id) {
-        return service.findById(id);
-    }
-
-    @PostMapping
-    public SpendingLimits save(@RequestBody SpendingLimits limit) {
-        return service.save(limit);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        service.deleteById(id);
+    public ResponseEntity<SpendingLimitResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(spendingLimitsService.getSpendingLimitById(id));
     }
 }

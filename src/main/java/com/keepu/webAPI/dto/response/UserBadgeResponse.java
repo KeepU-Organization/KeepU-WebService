@@ -1,0 +1,10 @@
+package com.keepu.webAPI.dto.response;
+
+import java.time.LocalDateTime;
+
+public record UserBadgeResponse(
+        Integer id,
+        Integer userId,
+        Integer badgeId,
+        LocalDateTime earnedAt
+) {}

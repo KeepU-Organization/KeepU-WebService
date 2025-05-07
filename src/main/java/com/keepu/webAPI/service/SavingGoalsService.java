@@ -1,33 +1,33 @@
 package com.keepu.webAPI.service;
 
+import com.keepu.webAPI.dto.request.CreateSavingGoalRequest;
+import com.keepu.webAPI.dto.response.SavingGoalResponse;
+import com.keepu.webAPI.exception.NotFoundException;
+import com.keepu.webAPI.mapper.SavingGoalsMapper;
 import com.keepu.webAPI.model.SavingGoals;
+import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.repository.SavingGoalsRepository;
+import com.keepu.webAPI.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class SavingGoalsService {
 
-    private final SavingGoalsRepository repo;
+    private final SavingGoalsRepository savingGoalsRepository;
+    private final UserRepository userRepository;
+    private final SavingGoalsMapper savingGoalsMapper;
 
-    public SavingGoalsService(SavingGoalsRepository repo) {
-        this.repo = repo;
-    }
+    @Transactional
+    public SavingGoalResponse createSavingGoal(CreateSavingGoalRequest request) {
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
-    public List<SavingGoals> findAll() {
-        return repo.findAll();
-    }
+        SavingGoals savingGoals = savingGoalsMapper.toSavingGoalsEntity(request, user);
+        SavingGoals savedSavingGoals = savingGoalsRepository.save(savingGoals);
 
-    public SavingGoals findById(Integer id) {
-        return repo.findById(id).orElse(null);
-    }
-
-    public SavingGoals save(SavingGoals goal) {
-        return repo.save(goal);
-    }
-
-    public void deleteById(Integer id) {
-        repo.deleteById(id);
+        return savingGoalsMapper.toSavingGoalResponse(savedSavingGoals);
     }
 }

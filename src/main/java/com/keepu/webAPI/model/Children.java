@@ -5,16 +5,17 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "Children")
+@Table(name = "children")
 public class Children {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_children;
-
-    private Integer age;
+    private Integer id;
 
     @OneToOne
-    @JoinColumn(name = "id_children")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Column(nullable = false)
+    private Integer age;
 }

@@ -1,32 +1,38 @@
 package com.keepu.webAPI.model;
 
+import com.keepu.webAPI.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Transactions")
+@Table(name = "transactions")
 public class Transactions {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_transaction;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_sender")
-    private User sender;
+    @Column(nullable = false)
+    private Double amount;
 
-    @ManyToOne
-    @JoinColumn(name = "id_user_receiver")
-    private User userReceiver;
-
-    @ManyToOne
-    @JoinColumn(name = "id_store_receiver")
-    private Stores storeReceiver;
-
-    private BigDecimal amount;
-    private LocalDateTime date;
+    @Column(nullable = false)
     private String description;
+
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDateTime transactionDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "transaction_type", nullable = false)
+    private TransactionType transactionType;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "gift_card_id", foreignKey = @ForeignKey(name = "fk_transactions_gift_card"))
+    private GiftCards giftCard;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "wallet_id", nullable = false)
+    private Wallet wallet;
 }

@@ -5,21 +5,22 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "Parent_children")
+@Table(name = "parent_children")
 public class ParentChildren {
 
     @EmbeddedId
     private ParentChildrenId id;
 
     @ManyToOne
-    @MapsId("id_parent")
-    @JoinColumn(name = "id_parent")
+    @MapsId("parentId")
+    @JoinColumn(name = "parent_id", nullable = false)
     private Parent parent;
 
     @ManyToOne
-    @MapsId("id_children")
-    @JoinColumn(name = "id_children")
-    private Children children;
+    @MapsId("childId")
+    @JoinColumn(name = "child_id", nullable = false)
+    private Children child;
 
-    private String relationship_type;
+    @Column(name = "relationship_type")
+    private String relationshipType;
 }

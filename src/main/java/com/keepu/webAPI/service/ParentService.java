@@ -1,33 +1,33 @@
 package com.keepu.webAPI.service;
 
+import com.keepu.webAPI.dto.request.CreateParentRequest;
+import com.keepu.webAPI.dto.response.ParentResponse;
+import com.keepu.webAPI.exception.NotFoundException;
+import com.keepu.webAPI.mapper.ParentMapper;
 import com.keepu.webAPI.model.Parent;
+import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.repository.ParentRepository;
+import com.keepu.webAPI.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class ParentService {
 
     private final ParentRepository parentRepository;
+    private final UserRepository userRepository;
+    private final ParentMapper parentMapper;
 
-    public ParentService(ParentRepository parentRepository) {
-        this.parentRepository = parentRepository;
-    }
+    @Transactional
+    public ParentResponse createParent(CreateParentRequest request) {
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
-    public List<Parent> findAll() {
-        return parentRepository.findAll();
-    }
+        Parent parent = parentMapper.toParentEntity(request, user);
+        Parent savedParent = parentRepository.save(parent);
 
-    public Parent findById(Integer id) {
-        return parentRepository.findById(id).orElse(null);
-    }
-
-    public Parent save(Parent parent) {
-        return parentRepository.save(parent);
-    }
-
-    public void deleteById(Integer id) {
-        parentRepository.deleteById(id);
+        return parentMapper.toParentResponse(savedParent);
     }
 }

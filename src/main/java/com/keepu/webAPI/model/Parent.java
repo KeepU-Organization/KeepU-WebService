@@ -5,16 +5,16 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "Parent")
+@Table(name = "parents")
 public class Parent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_parent;
+    private Integer id;
 
     private Integer phone;
 
     @OneToOne
-    @JoinColumn(name = "id_parent")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }

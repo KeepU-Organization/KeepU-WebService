@@ -1,33 +1,40 @@
 package com.keepu.webAPI.service;
 
+import com.keepu.webAPI.dto.request.CreateWalletRequest;
+import com.keepu.webAPI.dto.response.WalletResponse;
+import com.keepu.webAPI.exception.NotFoundException;
+import com.keepu.webAPI.mapper.WalletMapper;
+import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.model.Wallet;
+import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.repository.WalletRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class WalletService {
 
     private final WalletRepository walletRepository;
+    private final UserRepository userRepository;
+    private final WalletMapper walletMapper;
 
-    public WalletService(WalletRepository walletRepository) {
-        this.walletRepository = walletRepository;
+    @Transactional
+    public WalletResponse createWallet(CreateWalletRequest request) {
+        User user = userRepository.findById(request.userId())
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+
+        Wallet wallet = walletMapper.toWalletEntity(request, user);
+        Wallet savedWallet = walletRepository.save(wallet);
+
+        return walletMapper.toWalletResponse(savedWallet);
     }
 
-    public List<Wallet> findAll() {
-        return walletRepository.findAll();
-    }
-
-    public Wallet findById(Integer id) {
-        return walletRepository.findById(id).orElse(null);
-    }
-
-    public Wallet save(Wallet wallet) {
-        return walletRepository.save(wallet);
-    }
-
-    public void deleteById(Integer id) {
-        walletRepository.deleteById(id);
+    @Transactional(readOnly = true)
+    public WalletResponse getWalletById(Integer id) {
+        Wallet wallet = walletRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Billetera no encontrada"));
+        return walletMapper.toWalletResponse(wallet);
     }
 }

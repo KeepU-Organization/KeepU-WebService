@@ -1,38 +1,27 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.UserContentProgress;
+import com.keepu.webAPI.dto.request.CreateUserContentProgressRequest;
+import com.keepu.webAPI.dto.response.UserContentProgressResponse;
 import com.keepu.webAPI.service.UserContentProgressService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/user-content-progress")
+@RequiredArgsConstructor
 public class UserContentProgressController {
 
-    private final UserContentProgressService service;
+    private final UserContentProgressService userContentProgressService;
 
-    public UserContentProgressController(UserContentProgressService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<UserContentProgress> getAll() {
-        return service.findAll();
+    @PostMapping
+    public ResponseEntity<UserContentProgressResponse> create(@Valid @RequestBody CreateUserContentProgressRequest request) {
+        return ResponseEntity.ok(userContentProgressService.createUserContentProgress(request));
     }
 
     @GetMapping("/{id}")
-    public UserContentProgress getById(@PathVariable Integer id) {
-        return service.findById(id);
-    }
-
-    @PostMapping
-    public UserContentProgress save(@RequestBody UserContentProgress progress) {
-        return service.save(progress);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        service.deleteById(id);
+    public ResponseEntity<UserContentProgressResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(userContentProgressService.getUserContentProgressById(id));
     }
 }

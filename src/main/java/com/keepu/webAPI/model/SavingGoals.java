@@ -2,22 +2,29 @@ package com.keepu.webAPI.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.math.BigDecimal;
 
 @Data
 @Entity
-@Table(name = "Saving_goals")
+@Table(name = "saving_goals")
 public class SavingGoals {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id_goal;
+    private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "id_wallet")
-    private Wallet wallet;
+    @Column(nullable = false)
+    private String name;
 
-    private BigDecimal target_amount;
-    private String description;
-    private Boolean achieved;
+    @Column(nullable = false)
+    private Double targetAmount;
+
+    @Column(nullable = false)
+    private Double currentAmount;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    @Column(name = "is_completed", nullable = false)
+    private boolean isCompleted = false;
 }

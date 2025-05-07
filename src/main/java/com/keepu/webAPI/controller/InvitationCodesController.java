@@ -1,38 +1,27 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.model.InvitationCodes;
+import com.keepu.webAPI.dto.request.CreateInvitationCodeRequest;
+import com.keepu.webAPI.dto.response.InvitationCodeResponse;
 import com.keepu.webAPI.service.InvitationCodesService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/invitation-codes")
+@RequiredArgsConstructor
 public class InvitationCodesController {
 
-    private final InvitationCodesService service;
+    private final InvitationCodesService invitationCodesService;
 
-    public InvitationCodesController(InvitationCodesService service) {
-        this.service = service;
-    }
-
-    @GetMapping
-    public List<InvitationCodes> getAll() {
-        return service.findAll();
+    @PostMapping
+    public ResponseEntity<InvitationCodeResponse> create(@Valid @RequestBody CreateInvitationCodeRequest request) {
+        return ResponseEntity.ok(invitationCodesService.createInvitationCode(request));
     }
 
     @GetMapping("/{id}")
-    public InvitationCodes getById(@PathVariable Integer id) {
-        return service.findById(id);
-    }
-
-    @PostMapping
-    public InvitationCodes save(@RequestBody InvitationCodes code) {
-        return service.save(code);
-    }
-
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable Integer id) {
-        service.deleteById(id);
+    public ResponseEntity<InvitationCodeResponse> getById(@PathVariable Integer id) {
+        return ResponseEntity.ok(invitationCodesService.getInvitationCodeById(id));
     }
 }
