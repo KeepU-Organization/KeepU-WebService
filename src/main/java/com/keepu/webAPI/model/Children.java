@@ -17,5 +17,5 @@ public class Children {
     private User user;
 
     @Column(nullable = false)
-    private Integer age;
+    private Integer age=99;
 }

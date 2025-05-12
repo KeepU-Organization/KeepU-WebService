@@ -21,8 +21,8 @@ public class ChildrenService {
     private final ChildrenMapper childrenMapper;
 
     @Transactional
-    public ChildrenResponse createChildren(CreateChildrenRequest request) {
-        User user = userRepository.findById(request.userId())
+    public ChildrenResponse createChildren(Integer userId, CreateChildrenRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Children children = childrenMapper.toChildrenEntity(request, user);
@@ -30,4 +30,5 @@ public class ChildrenService {
 
         return childrenMapper.toChildrenResponse(savedChildren);
     }
+
 }

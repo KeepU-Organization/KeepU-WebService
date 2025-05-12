@@ -21,8 +21,8 @@ public class ParentService {
     private final ParentMapper parentMapper;
 
     @Transactional
-    public ParentResponse createParent(CreateParentRequest request) {
-        User user = userRepository.findById(request.userId())
+    public ParentResponse createParent(Integer userId, CreateParentRequest request) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
         Parent parent = parentMapper.toParentEntity(request, user);
@@ -30,4 +30,5 @@ public class ParentService {
 
         return parentMapper.toParentResponse(savedParent);
     }
+
 }

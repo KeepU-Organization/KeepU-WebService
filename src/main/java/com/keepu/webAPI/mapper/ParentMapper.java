@@ -26,7 +26,7 @@ public class ParentMapper {
         }
 
         Parent parent = new Parent();
-        parent.setPhone(request.phone());
+        parent.setPhone(request.phoneNumber());
         parent.setUser(user);
         return parent;
     }

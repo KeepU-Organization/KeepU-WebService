@@ -5,6 +5,7 @@ import com.keepu.webAPI.dto.response.ParentResponse;
 import com.keepu.webAPI.service.ParentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +16,13 @@ public class ParentController {
 
     private final ParentService parentService;
 
-    @PostMapping
-    public ResponseEntity<ParentResponse> create(@Valid @RequestBody CreateParentRequest request) {
-        return ResponseEntity.ok(parentService.createParent(request));
+    @PostMapping("/users/{userId}/parents")
+    public ResponseEntity<ParentResponse> createParent(
+            @PathVariable Integer userId,
+            @RequestBody CreateParentRequest request) {
+
+        ParentResponse response = parentService.createParent(userId, request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
 }
