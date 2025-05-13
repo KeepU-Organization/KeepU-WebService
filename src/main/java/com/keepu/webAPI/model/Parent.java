@@ -18,5 +18,5 @@ public class Parent {
     private User user;
 
     @Column(nullable = false)
-    private Integer phone=999999999;
+    private Integer phone;
 }

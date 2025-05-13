@@ -15,24 +15,12 @@ public record CreateParentRequest(
         @Size(max = 100, message = "Last names cannot exceed 100 characters")
         String lastNames,
 
-        @NotNull(message = "User type cannot be null")
-        UserType userType,
-
         @NotBlank(message = "Email cannot be blank")
         @Email(message = "Invalid email format")
         String email,
 
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 8, message = "Password must be at least 8 characters long")
-        String password,
-
-        @NotBlank(message="2FA no puede ser estar vacio")
-        boolean has2FA,
-
-        @NotBlank(message = "Security key cannot be blank")
-        String securityKey,
-
-        @Size(max=9, message="Phone number cannot exceed 9 characters")
-        Integer phoneNumber
+        String password
 
 ) {}

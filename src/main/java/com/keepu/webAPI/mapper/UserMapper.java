@@ -64,11 +64,11 @@ public class UserMapper {
         User user = new User();
         user.setName(request.name());
         user.setLastNames(request.lastNames());
-        user.setUserType(request.userType());
+        user.setUserType(UserType.PARENT);
         user.setEmail(request.email());
         user.setPassword(request.password());
-        user.setHas2FA(request.has2FA());
-        user.setSecurityKey(request.securityKey());
+
+        user.setHas2FA(false);
         user.setAuthenticated(false);
         user.setActive(true);
         return user;
@@ -80,11 +80,10 @@ public class UserMapper {
         User user = new User();
         user.setName(request.name());
         user.setLastNames(request.lastNames());
-        user.setUserType(request.userType());
+        user.setUserType(UserType.CHILD);
         user.setEmail(request.email());
         user.setPassword(request.password());
-        user.setHas2FA(request.has2FA());
-        user.setSecurityKey(request.securityKey());
+        user.setHas2FA(false);
         user.setAuthenticated(false);
         user.setActive(true);
         return user;
@@ -93,7 +92,7 @@ public class UserMapper {
     public Parent toParentEntity(CreateParentRequest request, User user) {
         Parent parent = new Parent();
         parent.setUser(user);
-        parent.setPhone(request.phoneNumber());
+        parent.setPhone(999999999);
         return parent;
     }
 
@@ -103,7 +102,7 @@ public class UserMapper {
     public Children toChildEntity(CreateChildrenRequest request, User user) {
         Children child = new Children();
         child.setUser(user);
-        child.setAge(request.age());
+        child.setAge(99);
         return child;
     }
 

@@ -17,8 +17,6 @@ public record CreateChildrenRequest(
         @Size(max = 100, message = "Last names cannot exceed 100 characters")
         String lastNames,
 
-        @NotNull(message = "User type cannot be null")
-        UserType userType,
 
         @NotBlank(message = "Email cannot be blank")
         @Email(message = "Invalid email format")
@@ -26,13 +24,6 @@ public record CreateChildrenRequest(
 
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 8, message = "Password must be at least 8 characters long")
-        String password,
+        String password
 
-        boolean has2FA,
-
-        @NotBlank(message = "Security key cannot be blank")
-        String securityKey,
-
-        @NotNull(message = "Age cannot be null")
-        Integer age
 ) {}

@@ -32,16 +32,16 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private boolean has2FA = false;
+    private boolean has2FA;
 
     @Column(nullable = false)
     private String securityKey;
 
     @Column(nullable = false)
-    private boolean isAuthenticated = false;
+    private boolean isAuthenticated;
 
     @Column(nullable = false)
-    private boolean isActive = false;
+    private boolean isActive;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

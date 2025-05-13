@@ -1,5 +1,5 @@
 package com.keepu.webAPI.model;
-import com.keepu.webAPI.enums.ContentType;
+import com.keepu.webAPI.model.enums.ContentType;
 
 import jakarta.persistence.*;
 import lombok.Data;

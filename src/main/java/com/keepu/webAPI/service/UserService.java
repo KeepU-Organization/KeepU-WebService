@@ -2,6 +2,7 @@ package com.keepu.webAPI.service;
 
 import com.keepu.webAPI.dto.request.CreateChildrenRequest;
 import com.keepu.webAPI.dto.request.CreateParentRequest;
+import com.keepu.webAPI.dto.request.CreateWalletRequest;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.EmailAlreadyExistsException;
 import com.keepu.webAPI.exception.InvalidEmailFormatException;
@@ -10,6 +11,8 @@ import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.enums.UserType;
+import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.ChildrenRepository;
 import com.keepu.webAPI.repository.ParentRepository;
 import com.keepu.webAPI.repository.UserRepository;
@@ -28,6 +31,7 @@ public class UserService {
     private final ChildrenRepository childrenRepository;
     private final ParentRepository parentRepository;
     private final PasswordEncoder passwordEncoder;
+    private final WalletService walletService;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -35,11 +39,16 @@ public class UserService {
 
         User newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
+        newUser.setUserType(UserType.PARENT);
         User savedUser = userRepository.save(newUser);
 
 
         Parent parent = userMapper.toParentEntity(request, savedUser);
         Parent savedParent = parentRepository.save(parent);
+
+        //wallet de registro:
+        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.PARENT, newUser.getId());
+        walletService.createWallet(createWalletRequest);
 
         return userMapper.toUserResponse(savedUser, savedParent, null);
 
@@ -54,6 +63,7 @@ public class UserService {
         // Crear y guardar el usuario base
         User newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
+        newUser.setUserType(UserType.CHILD);
         User savedUser = userRepository.save(newUser);
 
         // Crear el Child
@@ -61,6 +71,10 @@ public class UserService {
 
         // Guardar el Child
         Children savedChild = childrenRepository.save(child);
+
+        //wallet de registro:
+        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.STANDARD, newUser.getId());
+        walletService.createWallet(createWalletRequest);
 
         return userMapper.toUserResponse(savedUser, null, savedChild);
     }
