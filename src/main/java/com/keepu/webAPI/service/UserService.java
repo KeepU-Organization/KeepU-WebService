@@ -15,6 +15,7 @@ import com.keepu.webAPI.repository.ParentRepository;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,13 +27,16 @@ public class UserService {
     private final UserMapper userMapper;
     private final ChildrenRepository childrenRepository;
     private final ParentRepository parentRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
-        registerUser(request.email(), request.password());
+        String encodedPassword=registerUser(request.email(), request.password());
 
         User newUser = userMapper.toUserEntity(request);
+        newUser.setPassword(encodedPassword);
         User savedUser = userRepository.save(newUser);
+
 
         Parent parent = userMapper.toParentEntity(request, savedUser);
         Parent savedParent = parentRepository.save(parent);
@@ -44,11 +48,12 @@ public class UserService {
     @Transactional
     public UserResponse registerChild(CreateChildrenRequest request) {
         // Validar campos comunes
-        registerUser(request.email(), request.password());
+        String encodedPassword=registerUser(request.email(), request.password());
 
 
         // Crear y guardar el usuario base
         User newUser = userMapper.toUserEntity(request);
+        newUser.setPassword(encodedPassword);
         User savedUser = userRepository.save(newUser);
 
         // Crear el Child
@@ -60,7 +65,7 @@ public class UserService {
         return userMapper.toUserResponse(savedUser, null, savedChild);
     }
 
-    public void registerUser(String email, String password) {
+    public String registerUser(String email, String password) {
         // Validar que el email no esté vacío
         if (email== null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email cannot be empty");
@@ -83,7 +88,7 @@ public class UserService {
                             "one lowercase letter, one uppercase letter, one special character, and no spaces."
             );
         }
-
+        return passwordEncoder.encode(password);
     }
     @Transactional
     public UserResponse getUserById(Integer userId) {
