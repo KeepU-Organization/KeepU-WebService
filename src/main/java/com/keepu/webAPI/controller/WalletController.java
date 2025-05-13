@@ -24,4 +24,8 @@ public class WalletController {
     public ResponseEntity<WalletResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(walletService.getWalletById(id));
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<WalletResponse> getByUserId(@PathVariable Integer userId) {
+        return ResponseEntity.ok(walletService.getWalletByUserId(userId));
+    }
 }

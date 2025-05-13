@@ -37,4 +37,13 @@ public class WalletService {
                 .orElseThrow(() -> new NotFoundException("Billetera no encontrada"));
         return walletMapper.toWalletResponse(wallet);
     }
+
+    public WalletResponse getWalletByUserId(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+
+        Wallet wallet = walletRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException("Billetera no encontrada"));
+        return walletMapper.toWalletResponse(wallet);
+    }
 }
