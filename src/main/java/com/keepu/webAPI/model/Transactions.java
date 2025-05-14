@@ -1,6 +1,6 @@
 package com.keepu.webAPI.model;
 
-import com.keepu.webAPI.enums.TransactionType;
+import com.keepu.webAPI.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;
 

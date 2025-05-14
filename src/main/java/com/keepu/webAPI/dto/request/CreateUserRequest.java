@@ -1,6 +1,6 @@
 package com.keepu.webAPI.dto.request;
 
-import com.keepu.webAPI.enums.UserType;
+import com.keepu.webAPI.model.enums.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -28,6 +28,8 @@ public record CreateUserRequest(
 
         boolean has2FA,
 
-        @NotBlank(message = "Security key cannot be blank")
+        //@NotBlank(message = "Security key cannot be blank")
         String securityKey
+
+
 ) {}

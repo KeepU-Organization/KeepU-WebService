@@ -6,6 +6,8 @@ import com.keepu.webAPI.model.Wallet;
 import com.keepu.webAPI.model.User;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class WalletMapper {
 
@@ -15,6 +17,7 @@ public class WalletMapper {
         }
         return new WalletResponse(
                 wallet.getId(),
+                wallet.getWalletId(),
                 wallet.getWalletType(),
                 wallet.getBalance(),
                 wallet.getUser().getId()
@@ -28,7 +31,7 @@ public class WalletMapper {
 
         Wallet wallet = new Wallet();
         wallet.setWalletType(request.walletType());
-        wallet.setBalance(0.0);
+        wallet.setBalance(BigDecimal.valueOf(0.0));
         wallet.setUser(user);
         return wallet;
     }

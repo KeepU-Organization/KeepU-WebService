@@ -1,6 +1,6 @@
 package com.keepu.webAPI.model;
 
-import com.keepu.webAPI.enums.AuthCodeType;
+import com.keepu.webAPI.model.enums.AuthCodeType;
 import jakarta.persistence.*;
 import lombok.Data;
 

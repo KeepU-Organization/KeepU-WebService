@@ -2,7 +2,7 @@ package com.keepu.webAPI.mapper;
 
 import com.keepu.webAPI.dto.request.CreateAuthCodeRequest;
 import com.keepu.webAPI.dto.response.AuthCodeResponse;
-import com.keepu.webAPI.enums.AuthCodeType;
+import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.AuthCode;
 import com.keepu.webAPI.model.User;
 import org.springframework.stereotype.Component;
