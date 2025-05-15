@@ -2,15 +2,25 @@ package com.keepu.webAPI.mapper;
 
 import com.keepu.webAPI.dto.request.CreateChildrenRequest;
 import com.keepu.webAPI.dto.request.CreateParentRequest;
+import com.keepu.webAPI.dto.response.InvitationCodeResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.model.Children;
+import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.mapper.InvitationCodesMapper;
 import com.keepu.webAPI.model.enums.UserType;
+import com.keepu.webAPI.service.InvitationCodesService;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
+
+    private final InvitationCodesService invitationCodesService;
+
+    public UserMapper(InvitationCodesService invitationCodesService) {
+        this.invitationCodesService = invitationCodesService;
+    }
 
     public UserResponse toUserResponse(User user, Parent parent, Children child) {
         if (user == null) {
@@ -78,8 +88,9 @@ public class UserMapper {
             return null;
         }
         User user = new User();
-        user.setName(request.name());
-        user.setLastNames(request.lastNames());
+        InvitationCodeResponse invitationCodeResponse = invitationCodesService.getInvitationCodeByCode(request.invitationCode());
+        user.setName(invitationCodeResponse.childName());
+        user.setLastNames(invitationCodeResponse.childLastName());
         user.setUserType(UserType.CHILD);
         user.setEmail(request.email());
         user.setPassword(request.password());

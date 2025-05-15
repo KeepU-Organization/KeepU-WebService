@@ -20,8 +20,8 @@ public class InvitationCodesController {
         return ResponseEntity.ok(invitationCodesService.createInvitationCode(request));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<InvitationCodeResponse> getById(@PathVariable Integer id) {
-        return ResponseEntity.ok(invitationCodesService.getInvitationCodeById(id));
+    @GetMapping("/{code}")
+    public ResponseEntity<InvitationCodeResponse> getById(@PathVariable String code) {
+        return ResponseEntity.ok(invitationCodesService.getInvitationCodeByCode(code));
     }
 }

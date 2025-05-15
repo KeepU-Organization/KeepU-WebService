@@ -1,11 +1,14 @@
 package com.keepu.webAPI.service;
 
 import com.keepu.webAPI.dto.request.CreateChildrenRequest;
+import com.keepu.webAPI.dto.request.CreateInvitationCodeRequest;
 import com.keepu.webAPI.dto.request.CreateParentRequest;
 import com.keepu.webAPI.dto.request.CreateWalletRequest;
+import com.keepu.webAPI.dto.response.InvitationCodeResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.EmailAlreadyExistsException;
 import com.keepu.webAPI.exception.InvalidEmailFormatException;
+import com.keepu.webAPI.exception.InvalidInvitationCodeException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
@@ -32,6 +35,7 @@ public class UserService {
     private final ParentRepository parentRepository;
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
+    private final InvitationCodesService invitationCodesService;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -59,6 +63,12 @@ public class UserService {
         // Validar campos comunes
         String encodedPassword=registerUser(request.email(), request.password());
 
+        if (request.invitationCode() == null || request.invitationCode().isEmpty()) {
+            throw new IllegalArgumentException("Invitation code cannot be empty");
+        }
+        if (!invitationCodesService.isInvitationCodeValid(request.invitationCode())) {
+            throw new InvalidInvitationCodeException("Invalid invitation code");
+        }
 
         // Crear y guardar el usuario base
         User newUser = userMapper.toUserEntity(request);
@@ -75,6 +85,9 @@ public class UserService {
         //wallet de registro:
         CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.STANDARD, newUser.getId());
         walletService.createWallet(createWalletRequest);
+
+        //poner el codigo de registro como usado
+        invitationCodesService.updateInvitationCode(request.invitationCode());
 
         return userMapper.toUserResponse(savedUser, null, savedChild);
     }
