@@ -31,10 +31,6 @@ public class AuthCodeMapper {
 
         AuthCode authCode = new AuthCode();
         authCode.setUser(user);
-        authCode.setCode(request.code());
-        authCode.setCodeType(AuthCodeType.valueOf(request.codeType()));
-        authCode.setExpiresAt(request.expiresAt());
-        authCode.setUsed(false);
         return authCode;
     }
 }
