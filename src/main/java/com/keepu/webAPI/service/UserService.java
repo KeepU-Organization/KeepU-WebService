@@ -14,6 +14,7 @@ import com.keepu.webAPI.model.Children;
 import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.ChildrenRepository;
@@ -37,6 +38,7 @@ public class UserService {
     private final WalletService walletService;
     private final InvitationCodesService invitationCodesService;
     private final ParentChildrenService parentChildrenService;
+    private final AuthCodeService authCodeService;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -54,6 +56,10 @@ public class UserService {
         //wallet de registro:
         CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.PARENT, newUser.getId());
         walletService.createWallet(createWalletRequest);
+
+        // Crear codigo de autenticacion
+        CreateAuthCodeRequest createAuthCodeRequest = new CreateAuthCodeRequest(savedUser.getId(), AuthCodeType.EMAIL_VERIFICATION);
+        authCodeService.createAuthCode(createAuthCodeRequest);
 
         return userMapper.toUserResponse(savedUser, savedParent, null);
 

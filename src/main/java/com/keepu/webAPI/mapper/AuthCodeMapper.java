@@ -18,7 +18,7 @@ public class AuthCodeMapper {
                 authCode.getId(),
                 authCode.getUser().getId(),
                 authCode.getCode(),
-                authCode.getCodeType().name(),
+                authCode.getCodeType(),
                 authCode.isUsed(),
                 authCode.getExpiresAt()
         );
@@ -31,6 +31,7 @@ public class AuthCodeMapper {
 
         AuthCode authCode = new AuthCode();
         authCode.setUser(user);
+        authCode.setCodeType(request.authCodeType());
         return authCode;
     }
 }

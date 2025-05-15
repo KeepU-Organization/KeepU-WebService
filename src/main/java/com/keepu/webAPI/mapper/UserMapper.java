@@ -112,6 +112,7 @@ public class UserMapper {
      */
     public Children toChildEntity(CreateChildrenRequest request, User user) {
         Children child = new Children();
+        user.setAuthenticated(true);
         child.setUser(user);
         child.setAge(99);
         return child;
