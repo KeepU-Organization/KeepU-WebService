@@ -1,5 +1,6 @@
 package com.keepu.webAPI.dto.request;
 
+import com.keepu.webAPI.model.enums.RelationshipType;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateParentChildrenRequest(
@@ -7,7 +8,6 @@ public record CreateParentChildrenRequest(
         Integer parentId,
 
         @NotNull(message = "Child ID cannot be null")
-        Integer childId,
+        Integer childId
 
-        String relationshipType
 ) {}

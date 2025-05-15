@@ -31,7 +31,7 @@ public class ParentChildrenMapper {
         parentChildren.setId(new ParentChildrenId(parent.getId(), child.getId()));
         parentChildren.setParent(parent);
         parentChildren.setChild(child);
-        parentChildren.setRelationshipType(request.relationshipType());
+        //parentChildren.setRelationshipType(request.relationshipType());
         return parentChildren;
     }
 }

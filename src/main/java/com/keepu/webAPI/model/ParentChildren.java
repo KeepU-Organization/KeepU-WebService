@@ -1,5 +1,6 @@
 package com.keepu.webAPI.model;
 
+import com.keepu.webAPI.model.enums.RelationshipType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -22,5 +23,5 @@ public class ParentChildren {
     private Children child;
 
     @Column(name = "relationship_type")
-    private String relationshipType;
+    private RelationshipType relationshipType = RelationshipType.PARENT;
 }

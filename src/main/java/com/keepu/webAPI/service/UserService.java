@@ -1,10 +1,9 @@
 package com.keepu.webAPI.service;
 
-import com.keepu.webAPI.dto.request.CreateChildrenRequest;
-import com.keepu.webAPI.dto.request.CreateInvitationCodeRequest;
-import com.keepu.webAPI.dto.request.CreateParentRequest;
-import com.keepu.webAPI.dto.request.CreateWalletRequest;
+import com.keepu.webAPI.dto.request.*;
 import com.keepu.webAPI.dto.response.InvitationCodeResponse;
+import com.keepu.webAPI.dto.response.ParentChildrenResponse;
+import com.keepu.webAPI.dto.response.ParentResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.EmailAlreadyExistsException;
 import com.keepu.webAPI.exception.InvalidEmailFormatException;
@@ -12,6 +11,7 @@ import com.keepu.webAPI.exception.InvalidInvitationCodeException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
+import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.model.enums.UserType;
@@ -36,6 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
     private final InvitationCodesService invitationCodesService;
+    private final ParentChildrenService parentChildrenService;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -63,6 +64,7 @@ public class UserService {
         // Validar campos comunes
         String encodedPassword=registerUser(request.email(), request.password());
 
+        //validar la validez del codigo
         if (request.invitationCode() == null || request.invitationCode().isEmpty()) {
             throw new IllegalArgumentException("Invitation code cannot be empty");
         }
@@ -88,6 +90,15 @@ public class UserService {
 
         //poner el codigo de registro como usado
         invitationCodesService.updateInvitationCode(request.invitationCode());
+
+        //agregar a tabla parentChildren
+        InvitationCodeResponse invitationCodeResponse = invitationCodesService.getInvitationCodeByCode(request.invitationCode());
+        UserResponse parentResponse=getUserById(invitationCodeResponse.userId());
+        Parent parent = parentRepository.findById(parentResponse.id())
+                .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
+
+        CreateParentChildrenRequest createParentChildrenRequest = new CreateParentChildrenRequest(parent.getId(), savedChild.getId());
+        parentChildrenService.createParentChildren(createParentChildrenRequest);
 
         return userMapper.toUserResponse(savedUser, null, savedChild);
     }
