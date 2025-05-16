@@ -1,37 +1,42 @@
 package com.keepu.webAPI.mapper;
 
-import com.keepu.webAPI.dto.request.CreateTransactionRequest;
 import com.keepu.webAPI.dto.response.TransactionResponse;
 import com.keepu.webAPI.model.Transactions;
-import com.keepu.webAPI.model.Wallet;
 import org.springframework.stereotype.Component;
+
+import com.keepu.webAPI.dto.response.TransactionResponse;
+import com.keepu.webAPI.model.Transactions;
+import org.springframework.stereotype.Component;
+
+
+import java.util.List;
 
 @Component
 public class TransactionsMapper {
 
-    public TransactionResponse toTransactionResponse(Transactions transaction) {
-        if (transaction == null) {
-            return null;
-        }
+    public TransactionResponse toResponse(Transactions transaction) {
         return new TransactionResponse(
-                transaction.getId(),
                 transaction.getAmount(),
                 transaction.getDescription(),
-                transaction.getTransactionDate(),
-                transaction.getWallet().getId()
+                transaction.getTransactionType(),
+                transaction.getTransactionDate()
         );
     }
 
-    public Transactions toTransactionEntity(CreateTransactionRequest request, Wallet wallet) {
-        if (request == null || wallet == null) {
-            return null;
-        }
 
-        Transactions transaction = new Transactions();
-        transaction.setAmount(request.amount());
-        transaction.setDescription(request.description());
-        transaction.setTransactionDate(request.transactionDate());
-        transaction.setWallet(wallet);
-        return transaction;
+
+    public TransactionResponse toTransactionResponse(Transactions t) {
+        return new TransactionResponse(
+                t.getAmount(),
+                t.getDescription(),
+                t.getTransactionType(),
+                t.getTransactionDate()
+        );
+    }
+
+
+
+    public List<TransactionResponse> toTransactionResponseList(List<Transactions> list) {
+        return list.stream().map(this::toTransactionResponse).toList();
     }
 }
