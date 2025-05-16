@@ -123,4 +123,7 @@ public class WalletService {
     }
     private final TransactionsService transactionsService;
 
+    public List<Wallet> getAllWallets() {
+        return walletRepository.findAll();
+    }
 }
