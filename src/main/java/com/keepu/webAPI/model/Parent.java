@@ -19,4 +19,5 @@ public class Parent {
 
     @Column(nullable = false)
     private Integer phone;
+
 }

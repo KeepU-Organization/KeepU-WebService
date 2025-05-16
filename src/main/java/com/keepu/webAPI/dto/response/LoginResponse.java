@@ -6,6 +6,7 @@ public record LoginResponse (
     Integer userId,
     String name,
     String email,
+    boolean emailVerified,
     String userType,
     String token,
     boolean success,
@@ -13,6 +14,6 @@ public record LoginResponse (
 
 ){
     public LoginResponse(User user, String token) {
-        this(user.getId(), user.getName(), user.getEmail(), user.getUserType().toString(), token, true, "Login successful");
+        this(user.getId(), user.getName(), user.getEmail(), user.isAuthenticated(),user.getUserType().toString(), token, true, "Login successful");
     }
 }
