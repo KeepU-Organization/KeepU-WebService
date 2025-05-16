@@ -21,6 +21,9 @@ public class User {
     @Column(nullable = false)
     private String lastNames;
 
+    @Column(name = "profile_picture", length = 255)
+    private String profilePicture;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
