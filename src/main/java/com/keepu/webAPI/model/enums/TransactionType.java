@@ -1,4 +1,4 @@
-package com.keepu.webAPI.enums;
+package com.keepu.webAPI.model.enums;
 
 public enum TransactionType {
     PURCHASE, // Compra de una gift card

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
@@ -15,7 +16,7 @@ public class InvitationCodes {
     private Integer id;
 
     @Column(nullable = false, unique = true)
-    private String code;
+    private String invitationCode;
 
     @Column(name = "is_used", nullable = false)
     private boolean isUsed = false;
@@ -23,7 +24,20 @@ public class InvitationCodes {
     @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
+    @Column (name = "child_name", nullable = false)
+    private String childName;
+    @Column (nullable = false)
+    private String childLastName;
+
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    public InvitationCodes(){
+        this.invitationCode = generateCode();
+        this.expiresAt = LocalDateTime.now().plusHours(1);
+        this.isUsed = false;
+    }
+    public String generateCode(){
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
+    }
 }

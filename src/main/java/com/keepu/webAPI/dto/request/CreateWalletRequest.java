@@ -1,6 +1,6 @@
 package com.keepu.webAPI.dto.request;
 
-import com.keepu.webAPI.enums.WalletType;
+import com.keepu.webAPI.model.enums.WalletType;
 import jakarta.validation.constraints.NotNull;
 
 public record CreateWalletRequest(

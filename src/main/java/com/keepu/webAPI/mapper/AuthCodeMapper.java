@@ -2,7 +2,7 @@ package com.keepu.webAPI.mapper;
 
 import com.keepu.webAPI.dto.request.CreateAuthCodeRequest;
 import com.keepu.webAPI.dto.response.AuthCodeResponse;
-import com.keepu.webAPI.enums.AuthCodeType;
+import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.AuthCode;
 import com.keepu.webAPI.model.User;
 import org.springframework.stereotype.Component;
@@ -18,7 +18,7 @@ public class AuthCodeMapper {
                 authCode.getId(),
                 authCode.getUser().getId(),
                 authCode.getCode(),
-                authCode.getCodeType().name(),
+                authCode.getCodeType(),
                 authCode.isUsed(),
                 authCode.getExpiresAt()
         );
@@ -31,10 +31,7 @@ public class AuthCodeMapper {
 
         AuthCode authCode = new AuthCode();
         authCode.setUser(user);
-        authCode.setCode(request.code());
-        authCode.setCodeType(AuthCodeType.valueOf(request.codeType()));
-        authCode.setExpiresAt(request.expiresAt());
-        authCode.setUsed(false);
+        authCode.setCodeType(request.authCodeType());
         return authCode;
     }
 }

@@ -6,6 +6,8 @@ import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.User;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
+
 @Component
 public class InvitationCodesMapper {
 
@@ -15,10 +17,12 @@ public class InvitationCodesMapper {
         }
         return new InvitationCodeResponse(
                 invitationCode.getId(),
-                invitationCode.getCode(),
+                invitationCode.getInvitationCode(),
                 invitationCode.isUsed(),
                 invitationCode.getExpiresAt(),
-                invitationCode.getUser().getId()
+                invitationCode.getUser().getId(),
+                invitationCode.getChildName(),
+                invitationCode.getChildLastName()
         );
     }
 
@@ -28,9 +32,8 @@ public class InvitationCodesMapper {
         }
 
         InvitationCodes invitationCode = new InvitationCodes();
-        invitationCode.setCode(request.code());
-        invitationCode.setExpiresAt(request.expiresAt());
-        invitationCode.setUsed(false);
+        invitationCode.setChildName(request.childName());
+        invitationCode.setChildLastName(request.childLastNames());
         invitationCode.setUser(user);
         return invitationCode;
     }

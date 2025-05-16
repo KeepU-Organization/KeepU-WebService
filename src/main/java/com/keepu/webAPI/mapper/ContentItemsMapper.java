@@ -2,7 +2,7 @@ package com.keepu.webAPI.mapper;
 
 import com.keepu.webAPI.dto.request.CreateContentItemRequest;
 import com.keepu.webAPI.dto.response.ContentItemResponse;
-import com.keepu.webAPI.enums.ContentType;
+import com.keepu.webAPI.model.enums.ContentType;
 import com.keepu.webAPI.model.ContentItems;
 import com.keepu.webAPI.model.Modules;
 import org.springframework.stereotype.Component;
