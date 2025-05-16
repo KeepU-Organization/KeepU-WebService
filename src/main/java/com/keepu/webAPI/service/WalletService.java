@@ -8,6 +8,7 @@ import com.keepu.webAPI.exception.NotFoundException;
 import com.keepu.webAPI.mapper.WalletMapper;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.model.Wallet;
+import com.keepu.webAPI.model.enums.TransactionType;
 import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.repository.WalletRepository;
@@ -82,6 +83,9 @@ public class WalletService {
 
         wallet.setBalance(wallet.getBalance().add(amount));
         Wallet updatedWallet = walletRepository.save(wallet);
+
+
+        transactionsService.recordTransfer(updatedWallet, amount.doubleValue(), "Transferencia realizada", TransactionType.DEPOSIT);
         return walletMapper.toWalletResponse(updatedWallet);
     }
     @Transactional
@@ -110,7 +114,7 @@ public class WalletService {
         Wallet updatedReceiverWallet = walletRepository.save(receiverWallet);
 
         // Registrar la transacción SOLO para el sender
-        transactionsService.recordTransfer(senderWallet, amount.doubleValue(), "Transferencia realizada");
+        transactionsService.recordTransfer(senderWallet, amount.doubleValue(), "Transferencia realizada", TransactionType.TRANSFER);
 
         return new TransferResponse(
                 walletMapper.toWalletResponse(updatedSenderWallet),
