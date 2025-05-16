@@ -32,12 +32,12 @@ public class TransactionsService {
     }
 
 
-    public void recordTransfer(Wallet senderWallet, double amount, String description) {
+    public void recordTransfer(Wallet senderWallet, double amount, String description,TransactionType transactionType) {
         Transactions transaction = new Transactions();
         transaction.setWallet(senderWallet);
         transaction.setAmount(amount);
         transaction.setDescription(description);
-        transaction.setTransactionType(TransactionType.TRANSFER);
+        transaction.setTransactionType(transactionType);
         transaction.setTransactionDate(LocalDateTime.now());
         transactionsRepository.save(transaction);
     }
