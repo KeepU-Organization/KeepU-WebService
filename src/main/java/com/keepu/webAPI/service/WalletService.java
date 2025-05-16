@@ -29,6 +29,7 @@ public class WalletService {
     private final WalletRepository walletRepository;
     private final UserRepository userRepository;
     private final WalletMapper walletMapper;
+    private final TransactionsService transactionsService;
 
     @Transactional
     public WalletResponse createWallet(CreateWalletRequest request) {
@@ -121,9 +122,5 @@ public class WalletService {
     public List<Wallet> getAllWallets() {
         return walletRepository.findAll();
     }
-    private final TransactionsService transactionsService;
 
-    public List<Wallet> getAllWallets() {
-        return walletRepository.findAll();
-    }
 }
