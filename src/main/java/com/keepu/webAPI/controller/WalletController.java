@@ -43,7 +43,7 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletByWalletId(walletId));
     }
     //no uso userId porq los users pueden tener más de un wallet
-    @PutMapping("/{walletId}/deposit") //no se puede mandar bigdecimal como paramato de url :/
+    @PutMapping("/deposit") //no se puede mandar bigdecimal como paramato de url :/
     public ResponseEntity<WalletResponse> deposit( @RequestBody Map<String, Object> requestData) {
         String walletId = (String) requestData.get("walletId");
         BigDecimal newBalance = new BigDecimal(requestData.get("newBalance").toString());

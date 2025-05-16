@@ -23,6 +23,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+
 public class WalletService {
 
     private final WalletRepository walletRepository;
@@ -84,9 +85,10 @@ public class WalletService {
     }
     @Transactional
     public TransferResponse transfer(String senderWalletId, String receiverWalletId, BigDecimal amount) {
-        if (amount.compareTo(BigDecimal.ZERO)<=0){
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("El monto a transferir debe ser mayor que cero");
         }
+
         Wallet senderWallet = walletRepository.findByWalletId(senderWalletId)
                 .orElseThrow(() -> new NotFoundException("Billetera de origen no encontrada"));
         Wallet receiverWallet = walletRepository.findByWalletId(receiverWalletId)
@@ -95,19 +97,31 @@ public class WalletService {
         if (senderWallet.getBalance().compareTo(amount) < 0) {
             throw new InsufficientFundsException("Saldo insuficiente para realizar la transferencia");
         }
-        if (receiverWallet.getWalletType() == WalletType.PARENT){
+
+        if (receiverWallet.getWalletType() == WalletType.PARENT) {
             throw new IllegalArgumentException("No se puede transferir a una billetera de tipo PARENT");
         }
+
         senderWallet.setBalance(senderWallet.getBalance().subtract(amount));
         receiverWallet.setBalance(receiverWallet.getBalance().add(amount));
 
-        Wallet updatedSenderWallet= walletRepository.save(senderWallet);
-        Wallet updatedReceiverWallet= walletRepository.save(receiverWallet);
+        Wallet updatedSenderWallet = walletRepository.save(senderWallet);
+        Wallet updatedReceiverWallet = walletRepository.save(receiverWallet);
 
-        return new TransferResponse(walletMapper.toWalletResponse(updatedSenderWallet),
+        // Registrar la transacción SOLO para el sender
+        transactionsService.recordTransfer(senderWallet, amount.doubleValue(), "Transferencia realizada");
+
+        return new TransferResponse(
+                walletMapper.toWalletResponse(updatedSenderWallet),
                 walletMapper.toWalletResponse(updatedReceiverWallet),
-                amount);
+                amount
+        );
     }
+
+    public List<Wallet> getAllWallets() {
+        return walletRepository.findAll();
+    }
+    private final TransactionsService transactionsService;
 
     public List<Wallet> getAllWallets() {
         return walletRepository.findAll();
