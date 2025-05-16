@@ -57,6 +57,7 @@ public class UserMapper {
             has2FA,
             isAuthenticated,
             isActive,
+            user.isDarkMode(),
             user.getCreatedAt(),
             isParent,
             isChild,
