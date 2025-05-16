@@ -7,5 +7,7 @@ public record InvitationCodeResponse(
         String code,
         boolean isUsed,
         LocalDateTime expiresAt,
-        Integer userId
+        Integer userId,
+        String childName,
+        String childLastName
 ) {}

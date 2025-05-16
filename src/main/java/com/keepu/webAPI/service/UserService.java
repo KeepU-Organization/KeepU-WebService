@@ -1,16 +1,20 @@
 package com.keepu.webAPI.service;
 
-import com.keepu.webAPI.dto.request.CreateChildrenRequest;
-import com.keepu.webAPI.dto.request.CreateParentRequest;
-import com.keepu.webAPI.dto.request.CreateWalletRequest;
+import com.keepu.webAPI.dto.request.*;
+import com.keepu.webAPI.dto.response.InvitationCodeResponse;
+import com.keepu.webAPI.dto.response.ParentChildrenResponse;
+import com.keepu.webAPI.dto.response.ParentResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.EmailAlreadyExistsException;
 import com.keepu.webAPI.exception.InvalidEmailFormatException;
+import com.keepu.webAPI.exception.InvalidInvitationCodeException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
+import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.ChildrenRepository;
@@ -32,6 +36,9 @@ public class UserService {
     private final ParentRepository parentRepository;
     private final PasswordEncoder passwordEncoder;
     private final WalletService walletService;
+    private final InvitationCodesService invitationCodesService;
+    private final ParentChildrenService parentChildrenService;
+    private final AuthCodeService authCodeService;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -50,6 +57,10 @@ public class UserService {
         CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.PARENT, newUser.getId());
         walletService.createWallet(createWalletRequest);
 
+        // Crear codigo de autenticacion
+        CreateAuthCodeRequest createAuthCodeRequest = new CreateAuthCodeRequest(savedUser.getId(), AuthCodeType.EMAIL_VERIFICATION);
+        authCodeService.createAuthCode(createAuthCodeRequest);
+
         return userMapper.toUserResponse(savedUser, savedParent, null);
 
     }
@@ -59,6 +70,13 @@ public class UserService {
         // Validar campos comunes
         String encodedPassword=registerUser(request.email(), request.password());
 
+        //validar la validez del codigo
+        if (request.invitationCode() == null || request.invitationCode().isEmpty()) {
+            throw new IllegalArgumentException("Invitation code cannot be empty");
+        }
+        if (!invitationCodesService.isInvitationCodeValid(request.invitationCode())) {
+            throw new InvalidInvitationCodeException("Invalid invitation code");
+        }
 
         // Crear y guardar el usuario base
         User newUser = userMapper.toUserEntity(request);
@@ -75,6 +93,18 @@ public class UserService {
         //wallet de registro:
         CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.STANDARD, newUser.getId());
         walletService.createWallet(createWalletRequest);
+
+        //poner el codigo de registro como usado
+        invitationCodesService.updateInvitationCode(request.invitationCode());
+
+        //agregar a tabla parentChildren
+        InvitationCodeResponse invitationCodeResponse = invitationCodesService.getInvitationCodeByCode(request.invitationCode());
+        UserResponse parentResponse=getUserById(invitationCodeResponse.userId());
+        Parent parent = parentRepository.findById(parentResponse.id())
+                .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
+
+        CreateParentChildrenRequest createParentChildrenRequest = new CreateParentChildrenRequest(parent.getId(), savedChild.getId());
+        parentChildrenService.createParentChildren(createParentChildrenRequest);
 
         return userMapper.toUserResponse(savedUser, null, savedChild);
     }

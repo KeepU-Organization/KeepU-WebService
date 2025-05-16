@@ -4,6 +4,7 @@ import com.keepu.webAPI.dto.request.CreateWalletRequest;
 import com.keepu.webAPI.dto.request.CreateTransferRequest;
 import com.keepu.webAPI.dto.response.TransferResponse;
 import com.keepu.webAPI.dto.response.WalletResponse;
+import com.keepu.webAPI.model.Wallet;
 import com.keepu.webAPI.service.WalletService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -24,7 +26,10 @@ public class WalletController {
     public ResponseEntity<WalletResponse> create(@Valid @RequestBody CreateWalletRequest request) {
         return ResponseEntity.ok(walletService.createWallet(request));
     }
-
+    @GetMapping
+    public ResponseEntity<List<Wallet>> getAll() {
+        return ResponseEntity.ok(walletService.getAllWallets());
+    }
     @GetMapping("/{id}")
     public ResponseEntity<WalletResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(walletService.getWalletById(id));

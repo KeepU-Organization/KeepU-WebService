@@ -8,9 +8,12 @@ import com.keepu.webAPI.model.InvitationCodes;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.repository.InvitationCodesRepository;
 import com.keepu.webAPI.repository.UserRepository;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -32,9 +35,28 @@ public class InvitationCodesService {
     }
 
     @Transactional(readOnly = true)
-    public InvitationCodeResponse getInvitationCodeById(Integer id) {
-        InvitationCodes invitationCode = invitationCodesRepository.findById(id)
+    public InvitationCodeResponse getInvitationCodeByCode(String code) {
+        InvitationCodes invitationCode = invitationCodesRepository.findByInvitationCode(code)
                 .orElseThrow(() -> new NotFoundException("Código de invitación no encontrado"));
         return invitationCodesMapper.toInvitationCodeResponse(invitationCode);
+    }
+    @Transactional
+    public void deleteInvitationCode(String code) {
+        InvitationCodes invitationCode = invitationCodesRepository.findByInvitationCode(code)
+                .orElseThrow(() -> new NotFoundException("Código de invitación no encontrado"));
+        invitationCodesRepository.delete(invitationCode);
+    }
+    @Transactional
+    public void updateInvitationCode(String code) {
+        InvitationCodes invitationCode = invitationCodesRepository.findByInvitationCode(code)
+                .orElseThrow(() -> new NotFoundException("Código de invitación no encontrado"));
+        invitationCode.setUsed(true);
+        invitationCodesRepository.save(invitationCode);
+    }
+
+    public boolean isInvitationCodeValid( String s) {
+        InvitationCodes invitationCode = invitationCodesRepository.findByInvitationCode(s)
+                .orElseThrow(() -> new NotFoundException("Código de invitación no encontrado"));
+        return !invitationCode.isUsed() && invitationCode.getExpiresAt().isAfter(LocalDateTime.now());
     }
 }

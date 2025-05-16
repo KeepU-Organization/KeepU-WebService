@@ -17,7 +17,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.awt.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -107,4 +109,7 @@ public class WalletService {
                 amount);
     }
 
+    public List<Wallet> getAllWallets() {
+        return walletRepository.findAll();
+    }
 }
