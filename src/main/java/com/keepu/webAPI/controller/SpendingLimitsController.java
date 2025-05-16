@@ -9,31 +9,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/wallets/{walletId}/spending-limit")
+@RequestMapping("/api/v1/wallets/spending-limit")
 @RequiredArgsConstructor
 public class SpendingLimitsController {
 
     private final SpendingLimitsService spendingLimitsService;
 
-    // Crea o actualiza el límite de gasto de una billetera
+    // Crea o actualiza el límite de gasto de una billetera, walletId viene solo en el body
     @PostMapping
     public ResponseEntity<SpendingLimitResponse> createOrUpdate(
-            @PathVariable String walletId,
             @Valid @RequestBody CreateSpendingLimitRequest request) {
-
-        // Validación de coherencia entre el path variable y el body
-        if (!walletId.equals(request.walletId())) {
-            return ResponseEntity.badRequest().build();
-        }
 
         SpendingLimitResponse response = spendingLimitsService.createOrUpdateSpendingLimit(request);
         return ResponseEntity.ok(response);
     }
 
-    // Obtiene el límite de gasto asociado a una billetera
+    // Si quieres obtener el límite por walletId que venga en query param (GET normalmente no tiene body)
     @GetMapping
     public ResponseEntity<SpendingLimitResponse> getByWalletId(
-            @PathVariable String walletId) {
+            @RequestParam String walletId) {
 
         SpendingLimitResponse response = spendingLimitsService.getSpendingLimitByWalletId(walletId);
         return ResponseEntity.ok(response);
