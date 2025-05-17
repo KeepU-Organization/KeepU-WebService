@@ -8,5 +8,5 @@ public record CreateSpendingLimitRequest(
         BigDecimal maxAmount,
 
         @NotNull(message = "El ID de la billetera no puede ser nulo")
-        Integer walletId
+        String walletId
 ) {}

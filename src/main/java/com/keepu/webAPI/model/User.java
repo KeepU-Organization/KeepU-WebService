@@ -1,12 +1,14 @@
 package com.keepu.webAPI.model;
 
-import com.keepu.webAPI.enums.UserType;
+import com.keepu.webAPI.model.enums.UserType;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "\"users\"")
 public class User {
 
     @Id
@@ -19,6 +21,9 @@ public class User {
     @Column(nullable = false)
     private String lastNames;
 
+    @Column(name = "profile_picture", length = 255)
+    private String profilePicture;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType userType;
@@ -28,6 +33,10 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private boolean darkMode;
+
 
     @Column(nullable = false)
     private boolean has2FA;
@@ -40,4 +49,18 @@ public class User {
 
     @Column(nullable = false)
     private boolean isActive;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        // La securityKey es igual a la contraseña por defecto
+        if (this.securityKey == null && this.password != null) {
+            this.securityKey = this.password;
+        }
+    }
+
+
 }

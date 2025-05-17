@@ -1,11 +1,22 @@
 package com.keepu.webAPI.dto.request;
 
+import com.keepu.webAPI.model.enums.UserType;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public record CreateChildrenRequest(
-        @NotNull(message = "User ID cannot be null")
-        Integer userId,
 
-        @NotNull(message = "Age cannot be null")
-        Integer age
+        @NotBlank(message = "Email cannot be blank")
+        @Email(message = "Invalid email format")
+        String email,
+
+        @NotBlank(message = "Password cannot be blank")
+        @Size(min = 8, message = "Password must be at least 8 characters long")
+        String password,
+
+        @NotBlank(message = "Invitation code cannot be blank")
+        String invitationCode
+
 ) {}

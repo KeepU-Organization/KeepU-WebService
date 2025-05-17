@@ -5,5 +5,5 @@ import java.math.BigDecimal;
 public record SpendingLimitResponse(
         Integer id,
         BigDecimal maxAmount,
-        Integer walletId
+        String walletId
 ) {}
