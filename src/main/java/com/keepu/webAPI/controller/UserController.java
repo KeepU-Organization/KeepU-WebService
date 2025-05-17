@@ -65,8 +65,7 @@ public class UserController {
             age=childrenRepository.findByUserId(user.getId()).getAge();
         }
         UserResponse response = new UserResponse(user.getId(), user.getName(),  user.getLastNames(),user.getUserType(), user.getEmail(),
-                user.isHas2FA(),user.isAuthenticated(),user.isActive(),user.getCreatedAt(),isParent,isChild,phoneNumber,age
-                );
+                user.isHas2FA(),user.isAuthenticated(),user.isActive(),user.getCreatedAt(),isParent,isChild,phoneNumber,age, user.getProfilePicture());
         return ResponseEntity.ok(response);
     }
     // Actualizar la foto de perfil
