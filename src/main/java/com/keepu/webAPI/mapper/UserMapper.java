@@ -62,7 +62,8 @@ public class UserMapper {
             isParent,
             isChild,
             parent != null ? parent.getPhone():null,
-            child!= null ? child.getAge():null
+            child!= null ? child.getAge():null,
+            user.getProfilePicture()
 
         );
     }

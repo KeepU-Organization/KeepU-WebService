@@ -25,6 +25,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import com.keepu.webAPI.utils.ImageValidator;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +55,11 @@ public class UserService {
         User newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
         newUser.setUserType(UserType.PARENT);
+
+        // Asignar imagen por defecto
+        String defaultImagePath = "uploads/profilePics/default.jpg";
+        newUser.setProfilePicture(defaultImagePath);
+
         User savedUser = userRepository.save(newUser);
 
 
@@ -82,6 +95,11 @@ public class UserService {
         User newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
         newUser.setUserType(UserType.CHILD);
+
+        // Asignar imagen por defecto
+        String defaultImagePath = "uploads/profilePics/default.jpg";
+        newUser.setProfilePicture(defaultImagePath);
+
         User savedUser = userRepository.save(newUser);
 
         // Crear el Child
@@ -143,5 +161,37 @@ public class UserService {
         Children child = childrenRepository.findByUserId(userId);
 
         return userMapper.toUserResponse(user, parent, child);
+    }
+    @Transactional
+    public void updateProfilePicture(Integer userId, MultipartFile file) {
+        if (!ImageValidator.isValidImage(file)) {
+            throw new IllegalArgumentException("La imagen no es válida o supera el tamaño permitido.");
+        }
+
+        try {
+            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String uploadDir = "src/main/java/com/keepu/webAPI/uploads/profilePics";
+
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            Path filePath = Paths.get(uploadDir, fileName);
+            Files.write(filePath, file.getBytes());
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+            // Eliminar la imagen anterior si no es la imagen por defecto
+            if (user.getProfilePicture() != null && !user.getProfilePicture().equals("uploads/profilePics/default.png")) {
+                Files.deleteIfExists(Paths.get(user.getProfilePicture()));
+            }
+
+            user.setProfilePicture(filePath.toString());
+            userRepository.save(user);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
+        }
     }
 }
