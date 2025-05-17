@@ -35,6 +35,10 @@ public class User {
     private String password;
 
     @Column(nullable = false)
+    private boolean darkMode;
+
+
+    @Column(nullable = false)
     private boolean has2FA;
 
     @Column(nullable = false)
