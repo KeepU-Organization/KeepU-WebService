@@ -19,7 +19,8 @@ public record UserResponse(
         Boolean isParent,
         Boolean isChild,
         Integer phoneNumber,
-        Integer age
+        Integer age,
+        String profilePicture
 ) {
     public record ChildSummary(
             Integer id,

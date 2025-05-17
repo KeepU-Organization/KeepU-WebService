@@ -29,7 +29,9 @@ public record CreateUserRequest(
         boolean has2FA,
 
         //@NotBlank(message = "Security key cannot be blank")
-        String securityKey
+        String securityKey,
 
+        //@NotBlank(message = "Profile picture cannot be blank")
+        String profilePicture
 
 ) {}
