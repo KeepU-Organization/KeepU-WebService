@@ -16,7 +16,7 @@ public class SpendingLimitsMapper {
         return new SpendingLimitResponse(
                 spendingLimit.getId(),
                 spendingLimit.getMaxAmount(),
-                spendingLimit.getWallet().getId()
+                spendingLimit.getWallet().getWalletId() // ← Arreglado aquí
         );
     }
 

@@ -57,11 +57,13 @@ public class UserMapper {
             has2FA,
             isAuthenticated,
             isActive,
+            user.isDarkMode(),
             user.getCreatedAt(),
             isParent,
             isChild,
             parent != null ? parent.getPhone():null,
-            child!= null ? child.getAge():null
+            child!= null ? child.getAge():null,
+            user.getProfilePicture()
 
         );
     }

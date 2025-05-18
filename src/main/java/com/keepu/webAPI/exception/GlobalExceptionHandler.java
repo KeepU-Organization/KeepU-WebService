@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailAlreadyExistsException.class)
@@ -29,6 +30,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(IllegalArgumentException ex) {
         return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    // Manejo global de errores para módulos educativos y otros
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAllExceptions(Exception ex) {
+        return createErrorResponse("Ocurrió un error al cargar el contenido. Por favor, intenta más tarde.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {

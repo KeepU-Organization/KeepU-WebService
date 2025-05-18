@@ -20,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -68,9 +69,25 @@ public class UserController {
             isChild = true;
             age = childrenRepository.findByUserId(user.getId()).getAge();
         }
-        UserResponse response = new UserResponse(user.getId(), user.getName(), user.getLastNames(), user.getUserType(), user.getEmail(),
-                user.isHas2FA(), user.isAuthenticated(), user.isActive(), user.getCreatedAt(), isParent, isChild, phoneNumber, age
-        );
+
+        UserResponse response = new UserResponse(user.getId(), user.getName(),  user.getLastNames(),user.getUserType(), user.getEmail(), user.isHas2FA(),user.isAuthenticated(),user.isActive(),user.isDarkMode(),user.getCreatedAt(),isParent,isChild,phoneNumber,age, user.getProfilePicture());
+
         return ResponseEntity.ok(response);
     }
+    // Actualizar la foto de perfil
+    @PostMapping("/{userId}/profile-picture")
+    public ResponseEntity<?> updateProfilePicture(
+            @PathVariable Integer userId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            userService.updateProfilePicture(userId, file);
+            return ResponseEntity.ok("Foto de perfil actualizada con éxito.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error técnico: " + e.getMessage());
+        }
+    }
+
 }

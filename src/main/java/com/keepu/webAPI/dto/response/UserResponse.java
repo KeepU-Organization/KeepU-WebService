@@ -14,12 +14,14 @@ public record UserResponse(
         boolean has2FA,
         boolean isAuthenticated,
         boolean isActive,
+        boolean darkMode,
 
         LocalDateTime createdAt,
         Boolean isParent,
         Boolean isChild,
         Integer phoneNumber,
-        Integer age
+        Integer age,
+        String profilePicture
 ) {
     public record ChildSummary(
             Integer id,
