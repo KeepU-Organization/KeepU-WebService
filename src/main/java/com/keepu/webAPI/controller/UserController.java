@@ -19,8 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
-
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -50,21 +50,28 @@ public class UserController {
     }
     @GetMapping("/me")
     public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+        // Verificar si userDetails es nulo
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
+        }
+
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        boolean isParent=false ;
-        boolean isChild=false;
-        int phoneNumber=999999999;
-        int age=99;
-        if (user.getUserType()== UserType.PARENT) {
+        boolean isParent = false;
+        boolean isChild = false;
+        int phoneNumber = 999999999;
+        int age = 99;
+        if (user.getUserType() == UserType.PARENT) {
             isParent = true;
             phoneNumber = parentRepository.findByUserId(user.getId()).getPhone();
         }
-        else if (user.getUserType()==UserType.CHILD) {;
+        else if (user.getUserType() == UserType.CHILD) {
             isChild = true;
-            age=childrenRepository.findByUserId(user.getId()).getAge();
+            age = childrenRepository.findByUserId(user.getId()).getAge();
         }
+
         UserResponse response = new UserResponse(user.getId(), user.getName(),  user.getLastNames(),user.getUserType(), user.getEmail(), user.isHas2FA(),user.isAuthenticated(),user.isActive(),user.isDarkMode(),user.getCreatedAt(),isParent,isChild,phoneNumber,age, user.getProfilePicture());
+
         return ResponseEntity.ok(response);
     }
     // Actualizar la foto de perfil
