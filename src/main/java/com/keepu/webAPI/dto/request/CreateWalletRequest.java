@@ -8,5 +8,5 @@ public record CreateWalletRequest(
         WalletType walletType,
 
         @NotNull(message = "El ID del usuario no puede ser nulo")
-        Integer userId
+        Long userId
 ) {}

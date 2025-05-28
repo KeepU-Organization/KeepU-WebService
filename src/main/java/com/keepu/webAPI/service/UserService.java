@@ -10,15 +10,13 @@ import com.keepu.webAPI.exception.InvalidEmailFormatException;
 import com.keepu.webAPI.exception.InvalidInvitationCodeException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.mapper.UserMapper;
-import com.keepu.webAPI.model.Children;
-import com.keepu.webAPI.model.InvitationCodes;
-import com.keepu.webAPI.model.Parent;
-import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.*;
 import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.ChildrenRepository;
 import com.keepu.webAPI.repository.ParentRepository;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
 import lombok.RequiredArgsConstructor;
@@ -47,27 +45,33 @@ public class UserService {
     private final InvitationCodesService invitationCodesService;
     private final ParentChildrenService parentChildrenService;
     private final AuthCodeService authCodeService;
+    private final UserAuthRespository userAuthRespository;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
         String encodedPassword=registerUser(request.email(), request.password());
 
-        User newUser = userMapper.toUserEntity(request);
+        UserAuth newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
-        newUser.setUserType(UserType.PARENT);
+        newUser.getUser().setUserType(UserType.PARENT);
+
 
         // Asignar imagen por defecto
-        String defaultImagePath = "uploads/profilePics/default.jpg";
-        newUser.setProfilePicture(defaultImagePath);
 
-        User savedUser = userRepository.save(newUser);
+        String defaultImagePath = "uploads/profilePics/default.jpg";
+        newUser.getUser().setProfilePicture(defaultImagePath);
+
+        User savedUser = userRepository.save(newUser.getUser());
 
 
         Parent parent = userMapper.toParentEntity(request, savedUser);
         Parent savedParent = parentRepository.save(parent);
 
+        userAuthRespository.save(newUser);
+
+
         //wallet de registro:
-        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.PARENT, newUser.getId());
+        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.PARENT, newUser.getUser().getId());
         walletService.createWallet(createWalletRequest);
 
         // Crear codigo de autenticacion
@@ -92,24 +96,28 @@ public class UserService {
         }
 
         // Crear y guardar el usuario base
-        User newUser = userMapper.toUserEntity(request);
+        UserAuth newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
-        newUser.setUserType(UserType.CHILD);
+        newUser.getUser().setUserType(UserType.CHILD);
 
         // Asignar imagen por defecto
         String defaultImagePath = "uploads/profilePics/default.jpg";
-        newUser.setProfilePicture(defaultImagePath);
+        newUser.getUser(). setProfilePicture(defaultImagePath);
 
-        User savedUser = userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser.getUser());
 
         // Crear el Child
-        Children child = userMapper.toChildEntity(request, savedUser);
+        Children child = userMapper.toChildEntity(request, newUser, savedUser);
 
         // Guardar el Child
         Children savedChild = childrenRepository.save(child);
 
+        newUser.setEmailVerified(true);
+        // Guardar el UserAuth
+        userAuthRespository.save(newUser);
+
         //wallet de registro:
-        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.STANDARD, newUser.getId());
+        CreateWalletRequest createWalletRequest = new CreateWalletRequest(WalletType.STANDARD, newUser.getUser().getId());
         walletService.createWallet(createWalletRequest);
 
         //poner el codigo de registro como usado
@@ -121,7 +129,7 @@ public class UserService {
         Parent parent = parentRepository.findById(parentResponse.id())
                 .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
 
-        CreateParentChildrenRequest createParentChildrenRequest = new CreateParentChildrenRequest(parent.getId(), savedChild.getId());
+        CreateParentChildrenRequest createParentChildrenRequest = new CreateParentChildrenRequest(parent.getUser().getId(), savedChild.getUser().getId());
         parentChildrenService.createParentChildren(createParentChildrenRequest);
 
         return userMapper.toUserResponse(savedUser, null, savedChild);
@@ -153,7 +161,7 @@ public class UserService {
         return passwordEncoder.encode(password);
     }
     @Transactional
-    public UserResponse getUserById(Integer userId) {
+    public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
@@ -163,7 +171,7 @@ public class UserService {
         return userMapper.toUserResponse(user, parent, child);
     }
     @Transactional
-    public void updateProfilePicture(Integer userId, MultipartFile file) {
+    public void updateProfilePicture(Long userId, MultipartFile file) {
         if (!ImageValidator.isValidImage(file)) {
             throw new IllegalArgumentException("La imagen no es válida o supera el tamaño permitido.");
         }

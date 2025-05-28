@@ -7,9 +7,11 @@ import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.UserNotFoundException;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.repository.ChildrenRepository;
 import com.keepu.webAPI.repository.ParentRepository;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.service.UserService;
 import jakarta.validation.Valid;
@@ -31,6 +33,7 @@ public class UserController {
     private final UserRepository userRepository;
     private final ParentRepository parentRepository;
     private final ChildrenRepository childrenRepository;
+    private final UserAuthRespository userAuthRespository;
 
     @PostMapping("/register/parent")
     public ResponseEntity<UserResponse> registerParent(@RequestBody CreateParentRequest request) {
@@ -44,40 +47,41 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
     @GetMapping("/{userId}")
-    public ResponseEntity<UserResponse> getUser(@PathVariable Integer userId) {
+    public ResponseEntity<UserResponse> getUser(@PathVariable Long userId) {
         UserResponse response = userService.getUserById(userId);
         return ResponseEntity.ok(response);
     }
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<UserResponse.MeResponse> getCurrentUser(@AuthenticationPrincipal UserDetails userDetails) {
         // Verificar si userDetails es nulo
         if (userDetails == null) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no autenticado");
         }
 
-        User user = userRepository.findByEmail(userDetails.getUsername())
+        UserAuth userAuth = userAuthRespository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
-        boolean isParent = false;
-        boolean isChild = false;
+
         int phoneNumber = 999999999;
         int age = 99;
-        if (user.getUserType() == UserType.PARENT) {
-            isParent = true;
-            phoneNumber = parentRepository.findByUserId(user.getId()).getPhone();
+        if (userAuth .getUser() .getUserType() == UserType.PARENT) {
+            phoneNumber = parentRepository.findByUserId(userAuth.getUser() .getId()).getPhone();
         }
-        else if (user.getUserType() == UserType.CHILD) {
-            isChild = true;
-            age = childrenRepository.findByUserId(user.getId()).getAge();
+        else if (userAuth .getUser() .getUserType() == UserType.CHILD) {
+            age = childrenRepository.findByUserId(userAuth .getUser() .getId()).getAge();
         }
 
-        UserResponse response = new UserResponse(user.getId(), user.getName(),  user.getLastNames(),user.getUserType(), user.getEmail(), user.isHas2FA(),user.isAuthenticated(),user.isActive(),user.isDarkMode(),user.getCreatedAt(),isParent,isChild,phoneNumber,age, user.getProfilePicture());
+        UserResponse.MeResponse response = new UserResponse.MeResponse(
+                userAuth .getUser().getId(), userAuth .getUser().getName(),  userAuth .getUser().getLastNames(),
+                userAuth .getUser().getUserType(), userAuth .getUser().getEmail(),
+                userAuth.isHas2FA(), userAuth .isEmailVerified(),
+                userAuth .getUser().isDarkMode(),phoneNumber,age, userAuth .getUser().getProfilePicture());
 
         return ResponseEntity.ok(response);
     }
     // Actualizar la foto de perfil
     @PostMapping("/{userId}/profile-picture")
     public ResponseEntity<?> updateProfilePicture(
-            @PathVariable Integer userId,
+            @PathVariable Long userId,
             @RequestParam("file") MultipartFile file) {
         try {
             userService.updateProfilePicture(userId, file);

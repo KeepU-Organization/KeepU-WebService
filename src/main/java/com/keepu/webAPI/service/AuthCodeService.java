@@ -7,8 +7,10 @@ import com.keepu.webAPI.exception.UsedAuthCodeException;
 import com.keepu.webAPI.mapper.AuthCodeMapper;
 import com.keepu.webAPI.model.AuthCode;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
 import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.repository.AuthCodeRepository;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,12 +24,12 @@ import java.util.stream.Collectors;
 public class AuthCodeService {
 
     private final AuthCodeRepository authCodeRepository;
-    private final UserRepository userRepository;
+    private final UserAuthRespository userRepository;
     private final AuthCodeMapper authCodeMapper;
 
     @Transactional
     public AuthCodeResponse createAuthCode(CreateAuthCodeRequest request) {
-        User user = userRepository.findById(request.userId())
+        UserAuth user = userRepository.findByUserId(request.userId())
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 
         AuthCode authCode = authCodeMapper.toAuthCodeEntity(request, user);
@@ -44,7 +46,7 @@ public class AuthCodeService {
         }
         authCode.setUsed(true);
         if(authCode.getCodeType()== AuthCodeType.EMAIL_VERIFICATION){
-            authCode.getUser().setAuthenticated(true);
+            authCode.getUserAuth().setEmailVerified(true);
         }
 
         authCodeRepository.save(authCode);

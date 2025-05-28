@@ -1,6 +1,8 @@
 package com.keepu.webAPI.config;
 
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -19,9 +21,9 @@ import java.util.Collections;
 @Configuration
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
+    private final UserAuthRespository userRepository;
 
-    public ApplicationConfig(UserRepository userRepository) {
+    public ApplicationConfig(UserAuthRespository userRepository) {
         this.userRepository = userRepository;
     }
 
@@ -32,15 +34,15 @@ public class ApplicationConfig {
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado con email: " + email));
     }
 
-    private UserDetails buildUserDetails(User user) {
+    private UserDetails buildUserDetails(UserAuth user) {
         return new org.springframework.security.core.userdetails.User(
-                user.getEmail(),
+                user.getUser().getEmail(),
                 user.getPassword(),
-                user.isActive(),
+                user.getUser().isActive(),
                 true,
                 true,
                 true,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUserType().name()))
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getUser(). getUserType().name()))
         );
     }
 

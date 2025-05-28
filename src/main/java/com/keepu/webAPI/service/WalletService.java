@@ -50,7 +50,7 @@ public class WalletService {
         return walletMapper.toWalletResponse(wallet);
     }
     @Transactional
-    public WalletResponse getWalletByUserId(Integer userId) {
+    public WalletResponse getWalletByUserId(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
 

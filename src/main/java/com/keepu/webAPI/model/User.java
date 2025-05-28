@@ -13,7 +13,7 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false)
     private String name;
@@ -32,35 +32,11 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String password;
-
-    @Column(nullable = false)
     private boolean darkMode;
 
+    private boolean isActive=false;
 
-    @Column(nullable = false)
-    private boolean has2FA;
 
-    @Column(nullable = false)
-    private String securityKey;
-
-    @Column(nullable = false)
-    private boolean isAuthenticated;
-
-    @Column(nullable = false)
-    private boolean isActive;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        // La securityKey es igual a la contraseña por defecto
-        if (this.securityKey == null && this.password != null) {
-            this.securityKey = this.password;
-        }
-    }
 
 
 }

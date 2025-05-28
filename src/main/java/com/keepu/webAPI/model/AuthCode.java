@@ -14,11 +14,11 @@ public class AuthCode {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(name = "fk_auth_codes_user"))
-    private User user;
+    private UserAuth userAuth;
 
     @Column(nullable = false, length = 6)
     private String code;
@@ -34,7 +34,7 @@ public class AuthCode {
     private LocalDateTime expiresAt;
 
     public AuthCode(){
-        this.expiresAt = LocalDateTime.now().plusMinutes(5);
+        this.expiresAt = LocalDateTime.now().plusMinutes(15);
         this.code=generateCode();
         this.isUsed = false;
     }

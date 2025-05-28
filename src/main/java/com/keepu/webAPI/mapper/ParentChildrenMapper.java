@@ -16,8 +16,8 @@ public class ParentChildrenMapper {
             return null;
         }
         return new ParentChildrenResponse(
-                parentChildren.getParent().getId(),
-                parentChildren.getChild().getId(),
+                parentChildren.getParent().getUser().getId(),
+                parentChildren.getChild().getUser().getId(),
                 parentChildren.getRelationshipType()
         );
     }
@@ -28,7 +28,7 @@ public class ParentChildrenMapper {
         }
 
         ParentChildren parentChildren = new ParentChildren();
-        parentChildren.setId(new ParentChildrenId(parent.getId(), child.getId()));
+        parentChildren.setId(new ParentChildrenId(parent.getUser().getId(), child.getUser().getId()));
         parentChildren.setParent(parent);
         parentChildren.setChild(child);
         //parentChildren.setRelationshipType(request.relationshipType());

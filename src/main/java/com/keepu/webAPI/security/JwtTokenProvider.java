@@ -1,6 +1,7 @@
 package com.keepu.webAPI.security;
 
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -33,15 +34,15 @@ public class JwtTokenProvider {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String generateToken(User user) {
+    public String generateToken(UserAuth user) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + expirationTime);
 
         return Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(user.getUser().getEmail())
                 .setIssuedAt(now)
                 .setExpiration(validity)
-                .claim("id", user.getId())
+                .claim("id", user.getUser().getId())
                 .signWith(key)
                 .compact();
     }

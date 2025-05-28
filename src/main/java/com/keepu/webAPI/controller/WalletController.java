@@ -35,7 +35,7 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletById(id));
     }
     @GetMapping("/user/{userId}")
-    public ResponseEntity<WalletResponse> getByUserId(@PathVariable Integer userId) {
+    public ResponseEntity<WalletResponse> getByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(walletService.getWalletByUserId(userId));
     }
     @GetMapping("/{walletId}")

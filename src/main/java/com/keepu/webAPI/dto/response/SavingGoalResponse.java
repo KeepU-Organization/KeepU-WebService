@@ -6,5 +6,5 @@ public record SavingGoalResponse(
         Double targetAmount,
         Double currentAmount,
         boolean isCompleted,
-        Integer userId
+        Long userId
 ) {}

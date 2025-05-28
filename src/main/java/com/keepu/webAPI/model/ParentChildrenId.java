@@ -13,6 +13,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class ParentChildrenId implements Serializable {
 
-    private Integer parentId;
-    private Integer childId;
+    private Long parentId;
+    private Long childId;
 }

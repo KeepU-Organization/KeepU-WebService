@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateUserContentProgressRequest(
         @NotNull(message = "El ID del usuario no puede ser nulo")
-        Integer userId,
+        Long userId,
 
         @NotNull(message = "El ID del contenido no puede ser nulo")
         Integer contentId,

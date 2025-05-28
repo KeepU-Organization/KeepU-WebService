@@ -6,6 +6,8 @@ import com.keepu.webAPI.exception.InvalidEmailFormatException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.exception.UserNotFoundException;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.security.JwtTokenProvider;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
@@ -18,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AuthService {
     @Autowired
-    private final UserRepository userRepository;
+    private final UserAuthRespository userAuthRespository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -34,7 +36,7 @@ public class AuthService {
         }
 
         // Check if the user exists
-        User user = userRepository.findByEmail(email)
+        UserAuth user = userAuthRespository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
         // Check if the password matches

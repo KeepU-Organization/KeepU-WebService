@@ -4,10 +4,7 @@ import com.keepu.webAPI.dto.request.CreateChildrenRequest;
 import com.keepu.webAPI.dto.request.CreateParentRequest;
 import com.keepu.webAPI.dto.response.InvitationCodeResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
-import com.keepu.webAPI.model.Children;
-import com.keepu.webAPI.model.InvitationCodes;
-import com.keepu.webAPI.model.Parent;
-import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.*;
 import com.keepu.webAPI.mapper.InvitationCodesMapper;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.service.InvitationCodesService;
@@ -30,14 +27,11 @@ public class UserMapper {
         boolean isParent = parent != null;
         boolean isChild = child != null;
 
-        Integer id =user.getId();
+        Long id =user.getId();
         String name=        user.getName();
         String lastNames=        user.getLastNames();
         UserType userType=        user.getUserType();
         String email=        user.getEmail();
-        Boolean has2FA=        user.isHas2FA();
-        Boolean isAuthenticated=        user.isAuthenticated();
-        Boolean isActive=        user.isActive();
 
         Integer phoneNumber=null;
         if (isParent) {
@@ -54,13 +48,7 @@ public class UserMapper {
             lastNames,
             userType,
             email,
-            has2FA,
-            isAuthenticated,
-            isActive,
             user.isDarkMode(),
-            user.getCreatedAt(),
-            isParent,
-            isChild,
             parent != null ? parent.getPhone():null,
             child!= null ? child.getAge():null,
             user.getProfilePicture()
@@ -68,24 +56,26 @@ public class UserMapper {
         );
     }
 
-    public User toUserEntity(CreateParentRequest request) {
+    public UserAuth toUserEntity(CreateParentRequest request) {
         if (request == null) {
             return null;
         }
 
         User user = new User();
+        UserAuth userAuth = new UserAuth();
+
         user.setName(request.name());
         user.setLastNames(request.lastNames());
         user.setUserType(UserType.PARENT);
         user.setEmail(request.email());
-        user.setPassword(request.password());
+        userAuth.setPassword(request.password());
 
-        user.setHas2FA(false);
-        user.setAuthenticated(false);
-        user.setActive(true);
-        return user;
+        userAuth.setHas2FA(false);
+        userAuth.setEmailVerified(false);
+        userAuth.setUser(user);
+        return userAuth;
     }
-    public User toUserEntity(CreateChildrenRequest request) {
+    public UserAuth toUserEntity(CreateChildrenRequest request) {
         if (request == null) {
             return null;
         }
@@ -95,11 +85,16 @@ public class UserMapper {
         user.setLastNames(invitationCodeResponse.childLastName());
         user.setUserType(UserType.CHILD);
         user.setEmail(request.email());
-        user.setPassword(request.password());
-        user.setHas2FA(false);
-        user.setAuthenticated(false);
-        user.setActive(true);
-        return user;
+
+        UserAuth userAuth = new UserAuth();
+
+        userAuth.setPassword(request.password());
+        userAuth.setHas2FA(false);
+        userAuth.setEmailVerified(false);
+
+        userAuth.setUser(user);
+
+        return userAuth;
     }
 
     public Parent toParentEntity(CreateParentRequest request, User user) {
@@ -112,9 +107,8 @@ public class UserMapper {
     /**
      * Crea una entidad Child a partir de la solicitud y el usuario
      */
-    public Children toChildEntity(CreateChildrenRequest request, User user) {
+    public Children toChildEntity(CreateChildrenRequest request, UserAuth userAuth, User user) {
         Children child = new Children();
-        user.setAuthenticated(true);
         child.setUser(user);
         child.setAge(99);
         return child;
