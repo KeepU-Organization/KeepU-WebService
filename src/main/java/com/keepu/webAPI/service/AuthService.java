@@ -29,19 +29,19 @@ public class AuthService {
     public LoginResponse login(String email, String password) {
         // Validate email and password format
         if (!EmailPasswordValidator.isValidEmail(email)) {
-            throw new InvalidEmailFormatException("Invalid email format");
+            throw new InvalidEmailFormatException("Formato de correo electrónico inválido");
         }
         if (!EmailPasswordValidator.isValidPassword(password)) {
-            throw new InvalidPasswordFormatException("Invalid password format");
+            throw new InvalidPasswordFormatException("Formato de contraseña inválido");
         }
 
         // Check if the user exists
         UserAuth user = userAuthRespository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
         // Check if the password matches
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid credentials");
+            throw new InvalidCredentialsException("Credenciales inválidas");
         }
 
         // Generate JWT token

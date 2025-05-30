@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/users")
 @RequiredArgsConstructor
@@ -78,6 +80,13 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+    @GetMapping
+    public ResponseEntity<List<UserAuth>> getAllUsersAuth() {
+        return ResponseEntity.ok(userService.getAllUsersAuth());
+
+    }
+
+
     // Actualizar la foto de perfil
     @PostMapping("/{userId}/profile-picture")
     public ResponseEntity<?> updateProfilePicture(

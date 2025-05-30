@@ -38,7 +38,7 @@ public class AuthCodeService {
         return authCodeMapper.toAuthCodeResponse(savedAuthCode);
     }
     @Transactional
-    public void updateAuthCode(String code) {
+    public AuthCodeResponse updateAuthCode(String code) {
         AuthCode authCode = authCodeRepository.findByCode(code)
                 .orElseThrow(() -> new NotFoundException("Codigo de autenticacion no encontrado"));
         if (authCode.isUsed() || authCode.isExpired()) {
@@ -49,10 +49,20 @@ public class AuthCodeService {
             authCode.getUserAuth().setEmailVerified(true);
         }
 
-        authCodeRepository.save(authCode);
+        return authCodeMapper.toAuthCodeResponse(authCodeRepository.save(authCode)) ;
     }
-    @Transactional
+    @Transactional(readOnly = true)
     public List<AuthCode> getAllAuthCodes() {
         return authCodeRepository.findAll();
+    }
+    @Transactional(readOnly = true)
+    public AuthCode getAuthCodeById(Long id, AuthCodeType codeType) {
+        return authCodeRepository.findByUserIdAndCodeType(id,codeType)
+                .orElseThrow(() -> new NotFoundException("Codigo de autenticacion no encontrado"));
+    }
+    @Transactional(readOnly = true)
+    public AuthCode getAuthCodeByCode(String code) {
+        return authCodeRepository.findByCode(code)
+                .orElseThrow(() -> new NotFoundException("Codigo de autenticacion no encontrado"));
     }
 }

@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -138,17 +139,17 @@ public class UserService {
     public String registerUser(String email, String password) {
         // Validar que el email no esté vacío
         if (email== null || email.trim().isEmpty()) {
-            throw new IllegalArgumentException("Email cannot be empty");
+            throw new IllegalArgumentException("Email no puede estar vacío.");
         }
 
         // Validar formato de email
         if (!EmailPasswordValidator.isValidEmail(email)) {
-            throw new InvalidEmailFormatException("Invalid email format: " + email);
+            throw new InvalidEmailFormatException("Formato inválido de email: " + email);
         }
 
         // Validar que el email no esté ya registrado
         if (userRepository.existsByEmail(email)) {
-            throw new EmailAlreadyExistsException("The email " + email + " is already registered.");
+            throw new EmailAlreadyExistsException("El email " + email + " ya está registrado.");
         }
 
         // Validar formato de contraseña
@@ -160,7 +161,7 @@ public class UserService {
         }
         return passwordEncoder.encode(password);
     }
-    @Transactional
+    @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -170,6 +171,11 @@ public class UserService {
 
         return userMapper.toUserResponse(user, parent, child);
     }
+    @Transactional(readOnly = true)
+    public List<UserAuth> getAllUsersAuth() {
+        return userAuthRespository.findAll();
+    }
+
     @Transactional
     public void updateProfilePicture(Long userId, MultipartFile file) {
         if (!ImageValidator.isValidImage(file)) {
