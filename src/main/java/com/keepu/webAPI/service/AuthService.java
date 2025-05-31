@@ -6,6 +6,8 @@ import com.keepu.webAPI.exception.InvalidEmailFormatException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
 import com.keepu.webAPI.exception.UserNotFoundException;
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
+import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.security.JwtTokenProvider;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
@@ -18,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class AuthService {
     @Autowired
-    private final UserRepository userRepository;
+    private final UserAuthRespository userAuthRespository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -27,19 +29,19 @@ public class AuthService {
     public LoginResponse login(String email, String password) {
         // Validate email and password format
         if (!EmailPasswordValidator.isValidEmail(email)) {
-            throw new InvalidEmailFormatException("Invalid email format");
+            throw new InvalidEmailFormatException("Formato de correo electrónico inválido");
         }
         if (!EmailPasswordValidator.isValidPassword(password)) {
-            throw new InvalidPasswordFormatException("Invalid password format");
+            throw new InvalidPasswordFormatException("Formato de contraseña inválido");
         }
 
         // Check if the user exists
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        UserAuth user = userAuthRespository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
         // Check if the password matches
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new InvalidCredentialsException("Invalid credentials");
+            throw new InvalidCredentialsException("Credenciales inválidas");
         }
 
         // Generate JWT token

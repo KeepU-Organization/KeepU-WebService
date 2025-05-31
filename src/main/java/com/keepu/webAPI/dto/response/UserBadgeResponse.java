@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 
 public record UserBadgeResponse(
         Integer id,
-        Integer userId,
+        Long userId,
         Integer badgeId,
         LocalDateTime earnedAt
 ) {}

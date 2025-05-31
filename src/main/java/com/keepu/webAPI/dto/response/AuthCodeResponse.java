@@ -5,8 +5,8 @@ import com.keepu.webAPI.model.enums.AuthCodeType;
 import java.time.LocalDateTime;
 
 public record AuthCodeResponse(
-        Integer id,
-        Integer userId,
+        Long id,
+        Long userId,
         String code,
         AuthCodeType codeType,
         boolean isUsed,

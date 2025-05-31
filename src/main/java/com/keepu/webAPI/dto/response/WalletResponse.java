@@ -7,5 +7,5 @@ public record WalletResponse(
         String walletId,
         WalletType walletType,
         java.math.BigDecimal balance,
-        Integer userId
+        Long userId
 ) {}

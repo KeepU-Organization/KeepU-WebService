@@ -9,13 +9,13 @@ import lombok.Data;
 public class Parent {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
+    private Long userId;  // Campo explícito para la clave primaria
 
     @OneToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "parent_id", nullable = false)
+    @MapsId
     private User user;
+
 
     @Column(nullable = false)
     private Integer phone;

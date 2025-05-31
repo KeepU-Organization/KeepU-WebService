@@ -6,34 +6,45 @@ import com.keepu.webAPI.model.enums.UserType;
 import java.time.LocalDateTime;
 
 public record UserResponse(
-        Integer id,
+        Long id,
         String name,
         String lastNames,
         UserType userType,
         String email,
-        boolean has2FA,
-        boolean isAuthenticated,
-        boolean isActive,
+
         boolean darkMode,
 
-        LocalDateTime createdAt,
-        Boolean isParent,
-        Boolean isChild,
         Integer phoneNumber,
         Integer age,
         String profilePicture
 ) {
     public record ChildSummary(
-            Integer id,
+            Long id,
             String name,
             String lastNames,
             String email
     ){}
     public record ParentSummary(
-            Integer id,
+            Long id,
             String name,
             String lastNames,
             String email
+    ) {
+    }
+    public record MeResponse( //response para el frontend del usuario autenticado
+            Long id,
+            String name,
+            String lastNames,
+            UserType userType,
+            String email,
+
+            boolean has2FA,
+            boolean isEmailVerified,
+
+            boolean darkMode,
+            Integer phoneNumber,
+            Integer age,
+            String profilePicture
     ) {
     }
 }

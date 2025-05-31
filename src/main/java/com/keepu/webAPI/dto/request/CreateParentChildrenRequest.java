@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateParentChildrenRequest(
         @NotNull(message = "Parent ID cannot be null")
-        Integer parentId,
+        Long parentId,
 
         @NotNull(message = "Child ID cannot be null")
-        Integer childId
+        Long childId
 
 ) {}

@@ -1,9 +1,10 @@
 package com.keepu.webAPI.dto.response;
 
 import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
 
 public record LoginResponse (
-    Integer userId,
+    Long userId,
     String name,
     String email,
     boolean emailVerified,
@@ -13,8 +14,8 @@ public record LoginResponse (
     String message
 
 ){
-    public LoginResponse(User user, String token) {
-        this(user.getId(), user.getName(), user.getEmail(), user.isAuthenticated(),user.getUserType().toString(), token, true, "Login successful");
+    public LoginResponse(UserAuth user, String token) {
+        this(user.getUser(). getId(), user.getUser().getName(), user.getUser().getEmail(), user.isEmailVerified(),user.getUser().getUserType().toString(), token, true, "Login successful");
 
     }
 }

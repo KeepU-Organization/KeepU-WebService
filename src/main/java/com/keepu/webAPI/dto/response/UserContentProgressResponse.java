@@ -2,7 +2,7 @@ package com.keepu.webAPI.dto.response;
 
 public record UserContentProgressResponse(
         Integer id,
-        Integer userId,
+        Long userId,
         Integer contentId,
         Double progressPercentage
 ) {}

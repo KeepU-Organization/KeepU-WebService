@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotNull;
 
 public record CreateUserCourseProgressRequest(
         @NotNull(message = "El ID del usuario no puede ser nulo")
-        Integer userId,
+        Long userId,
 
         @NotNull(message = "El ID del curso no puede ser nulo")
         Integer courseId,
