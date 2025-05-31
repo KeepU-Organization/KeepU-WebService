@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public record CreateAuthCodeRequest(
         @NotNull(message = "El ID del usuario no puede ser nulo")
-        Integer userId,
+        Long userId,
 
         @NotNull(message="El tipo de codigo no puede ser nulo")
         AuthCodeType authCodeType

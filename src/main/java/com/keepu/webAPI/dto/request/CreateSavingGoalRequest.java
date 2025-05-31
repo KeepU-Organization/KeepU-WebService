@@ -11,5 +11,5 @@ public record CreateSavingGoalRequest(
         Double targetAmount,
 
         @NotNull(message = "El ID del usuario no puede ser nulo")
-        Integer userId
+        Long userId
 ) {}

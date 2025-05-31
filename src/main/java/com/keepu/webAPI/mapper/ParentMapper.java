@@ -14,9 +14,8 @@ public class ParentMapper {
             return null;
         }
         return new ParentResponse(
-                parent.getId(),
-                parent.getPhone(),
-                parent.getUser() != null ? parent.getUser().getId() : null
+                parent.getUser().getId(),
+                parent.getPhone()
         );
     }
 

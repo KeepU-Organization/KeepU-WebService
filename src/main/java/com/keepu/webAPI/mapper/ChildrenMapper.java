@@ -14,8 +14,7 @@ public class ChildrenMapper {
             return null;
         }
         return new ChildrenResponse(
-                children.getId(),
-                children.getUser() != null ? children.getUser().getId() : null,
+                children.getUser(). getId(),
                 children.getAge()
         );
     }

@@ -37,6 +37,21 @@ public class GlobalExceptionHandler {
         return createErrorResponse("Ocurrió un error al cargar el contenido. Por favor, intenta más tarde.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleNotFoundException(NotFoundException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+    @ExceptionHandler(UsedAuthCodeException.class)
+    public ResponseEntity<Object> handleUsedAuthCodeException(UsedAuthCodeException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+        public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+
     private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
