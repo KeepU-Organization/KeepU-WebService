@@ -9,5 +9,6 @@ public record InvitationCodeResponse(
         LocalDateTime expiresAt,
         Long userId,
         String childName,
-        String childLastName
+        String childLastName,
+        Integer childAge
 ) {}

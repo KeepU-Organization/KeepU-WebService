@@ -5,10 +5,7 @@ import com.keepu.webAPI.dto.response.InvitationCodeResponse;
 import com.keepu.webAPI.dto.response.ParentChildrenResponse;
 import com.keepu.webAPI.dto.response.ParentResponse;
 import com.keepu.webAPI.dto.response.UserResponse;
-import com.keepu.webAPI.exception.EmailAlreadyExistsException;
-import com.keepu.webAPI.exception.InvalidEmailFormatException;
-import com.keepu.webAPI.exception.InvalidInvitationCodeException;
-import com.keepu.webAPI.exception.InvalidPasswordFormatException;
+import com.keepu.webAPI.exception.*;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.*;
 import com.keepu.webAPI.model.enums.AuthCodeType;
@@ -90,7 +87,7 @@ public class UserService {
 
         //validar la validez del codigo
         if (request.invitationCode() == null || request.invitationCode().isEmpty()) {
-            throw new IllegalArgumentException("Invitation code cannot be empty");
+            throw new MissingFieldException("Invitation code cannot be empty");
         }
         if (!invitationCodesService.isInvitationCodeValid(request.invitationCode())) {
             throw new InvalidInvitationCodeException("Invalid invitation code");

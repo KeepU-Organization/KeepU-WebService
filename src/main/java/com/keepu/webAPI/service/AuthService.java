@@ -19,12 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    @Autowired
     private final UserAuthRespository userAuthRespository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
     @Transactional
     public LoginResponse login(String email, String password) {
         // Validate email and password format

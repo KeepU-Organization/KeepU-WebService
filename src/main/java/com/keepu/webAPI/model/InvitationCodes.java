@@ -28,6 +28,8 @@ public class InvitationCodes {
     private String childName;
     @Column (nullable = false)
     private String childLastName;
+    @Column(name = "child_age", nullable = false)
+    private Integer childAge;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false)
