@@ -106,7 +106,7 @@ public class UserService {
 
         // Crear el Child
         Children child = userMapper.toChildEntity(request, newUser, savedUser);
-
+        child.setAge(invitationCodesService.getInvitationCodeByCode(request.invitationCode()).childAge());
         // Guardar el Child
         Children savedChild = childrenRepository.save(child);
 

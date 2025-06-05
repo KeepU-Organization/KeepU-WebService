@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/gift-cards")
 @RequiredArgsConstructor
@@ -23,5 +25,9 @@ public class GiftCardsController {
     @GetMapping("/{id}")
     public ResponseEntity<GiftCardResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(giftCardsService.getGiftCardById(id));
+    }
+    @GetMapping()
+    public ResponseEntity<List<GiftCardResponse>> getAll() {
+        return ResponseEntity.ok(giftCardsService.getAllGiftCards());
     }
 }

@@ -1,26 +1,31 @@
 package com.keepu.webAPI.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.keepu.webAPI.dto.request.CreateWalletRequest;
 import com.keepu.webAPI.dto.request.CreateTransferRequest;
 import com.keepu.webAPI.dto.response.TransferResponse;
 import com.keepu.webAPI.dto.response.WalletResponse;
 import com.keepu.webAPI.model.Wallet;
+import com.keepu.webAPI.service.PayPalService;
 import com.keepu.webAPI.service.WalletService;
+import io.jsonwebtoken.io.IOException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.http.HttpStatus;
 @RestController
 @RequestMapping("/api/v1/wallets")
 @RequiredArgsConstructor
 public class WalletController {
 
     private final WalletService walletService;
+    private final PayPalService payPalService;
 
     @PostMapping
     public ResponseEntity<WalletResponse> create(@Valid @RequestBody CreateWalletRequest request) {
@@ -34,7 +39,7 @@ public class WalletController {
     public ResponseEntity<WalletResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(walletService.getWalletById(id));
     }
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user/{userId}") //SOLO UNA WALLET!!!
     public ResponseEntity<WalletResponse> getByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(walletService.getWalletByUserId(userId));
     }
@@ -43,11 +48,25 @@ public class WalletController {
         return ResponseEntity.ok(walletService.getWalletByWalletId(walletId));
     }
     //no uso userId porq los users pueden tener más de un wallet
-    @PutMapping("/deposit") //no se puede mandar bigdecimal como paramato de url :/
-    public ResponseEntity<WalletResponse> deposit( @RequestBody Map<String, Object> requestData) {
-        String walletId = (String) requestData.get("walletId");
-        BigDecimal newBalance = new BigDecimal(requestData.get("newBalance").toString());
-        return ResponseEntity.ok(walletService.deposit(walletId, newBalance));
+    @PutMapping("/deposit")
+    public ResponseEntity<?> deposit(@RequestBody Map<String, Object> requestData) {
+        try {
+            String orderId = (String) requestData.get("orderId");
+            String walletId = (String) requestData.get("walletId");
+
+            String accessToken = payPalService.getAccessToken();
+            BigDecimal amount = payPalService.captureOrder(accessToken, orderId);
+
+            WalletResponse walletResponse = walletService.deposit(walletId, amount);
+
+            return ResponseEntity.ok(walletResponse);
+        } catch (IOException | InterruptedException | JsonProcessingException e) {
+            // Registrar el error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al procesar el pago: " + e.getMessage());
+        } catch (java.io.IOException e) {
+            throw new RuntimeException(e);
+        }
     }
     @PostMapping("/transfer")
     public ResponseEntity<TransferResponse> transfer(@RequestBody CreateTransferRequest request) {

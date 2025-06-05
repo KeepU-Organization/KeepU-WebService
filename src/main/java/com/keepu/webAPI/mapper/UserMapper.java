@@ -110,7 +110,6 @@ public class UserMapper {
     public Children toChildEntity(CreateChildrenRequest request, UserAuth userAuth, User user) {
         Children child = new Children();
         child.setUser(user);
-        child.setAge(99);
         return child;
     }
 

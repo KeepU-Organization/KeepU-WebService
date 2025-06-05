@@ -58,6 +58,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleMissingFieldException(MissingFieldException ex) {
         return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<Object> handleInsufficientFundsException(InsufficientFundsException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 
 
     private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
