@@ -30,4 +30,8 @@ public class GiftCardsController {
     public ResponseEntity<List<GiftCardResponse>> getAll() {
         return ResponseEntity.ok(giftCardsService.getAllGiftCards());
     }
+    @GetMapping("/store/{storeId}")
+    public ResponseEntity<List<GiftCardResponse>> getByStoreId(@PathVariable Integer storeId) {
+        return ResponseEntity.ok(giftCardsService.getGiftCardsByStoreId(storeId));
+    }
 }

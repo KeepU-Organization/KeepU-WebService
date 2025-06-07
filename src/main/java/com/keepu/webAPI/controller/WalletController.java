@@ -1,8 +1,10 @@
 package com.keepu.webAPI.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.keepu.webAPI.dto.request.CreateShopRequest;
 import com.keepu.webAPI.dto.request.CreateWalletRequest;
 import com.keepu.webAPI.dto.request.CreateTransferRequest;
+import com.keepu.webAPI.dto.response.ShopResponse;
 import com.keepu.webAPI.dto.response.TransferResponse;
 import com.keepu.webAPI.dto.response.WalletResponse;
 import com.keepu.webAPI.model.Wallet;
@@ -74,6 +76,15 @@ public class WalletController {
                 request.senderWalletId(),
                 request.receiverWalletId(),
                 request.transactionAmount()
+        ));
+    }
+    @PostMapping("/purchase-gift-card")
+    public ResponseEntity<ShopResponse> purchaseGiftCard(@RequestBody CreateShopRequest request) {
+        return ResponseEntity.ok(walletService.purchaseGiftCard(
+                request.walletId(),
+                request.storeId(),
+                request.quantity(),
+                request.totalPrice()
         ));
     }
 }

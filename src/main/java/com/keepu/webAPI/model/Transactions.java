@@ -35,4 +35,8 @@ public class Transactions {
     @ManyToOne(optional = false)
     @JoinColumn(name = "wallet_id", nullable = false)
     private Wallet wallet;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "store_id", foreignKey = @ForeignKey(name = "fk_transactions_store"))
+    private Stores store;
 }

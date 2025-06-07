@@ -46,6 +46,20 @@ public class AuthService {
 
         return new LoginResponse(user,token);
     }
+    @Transactional
+    public boolean checkSecurityKey(String email, String securityKey) {
+        // Validate email format
+        if (!EmailPasswordValidator.isValidEmail(email)) {
+            throw new InvalidEmailFormatException("Formato de correo electrónico inválido");
+        }
 
+        UserAuth user = userAuthRespository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(securityKey, user.getSecurityKey())) {
+            throw new InvalidCredentialsException("Clave de seguridad inválida");
+        }
+        return true;
+    }
 }
 

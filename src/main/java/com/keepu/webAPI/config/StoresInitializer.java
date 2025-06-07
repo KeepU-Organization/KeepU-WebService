@@ -3,6 +3,7 @@ package com.keepu.webAPI.config;
 import com.keepu.webAPI.dto.request.CreateGiftCardRequest;
 import com.keepu.webAPI.dto.request.CreateStoreRequest;
 import com.keepu.webAPI.dto.response.StoreResponse;
+import com.keepu.webAPI.model.enums.StoreType;
 import com.keepu.webAPI.repository.GiftCardsRepository;
 import com.keepu.webAPI.repository.StoresRepository;
 import com.keepu.webAPI.service.GiftCardsService;
@@ -30,9 +31,12 @@ public class StoresInitializer implements CommandLineRunner {
         // Solo crear tiendas si no existen
         if (storesRepository.count() == 0) {
             List<CreateStoreRequest> defaultStores = List.of(
-                    new CreateStoreRequest("Steam", "Plataforma de videojuegos digitales"),
-                    new CreateStoreRequest("Riot", "Desarrollador de videojuegos populares"),
-                    new CreateStoreRequest("Ripley", "Tienda departamental")
+                    new CreateStoreRequest("Steam", "Plataforma de videojuegos digitales", StoreType.GAMING ,
+                            "https://store.steampowered.com/about/"),
+                    new CreateStoreRequest("Riot", "Desarrollador de videojuegos populares", StoreType.GAMING,
+                            "https://www.riotgames.com/es/"),
+                    new CreateStoreRequest("Ripley", "Tienda departamental", StoreType.DEPARTMENT_STORE,
+                            "https://simple.ripley.com.pe/")
             );
 
             List<StoreResponse> createdStores = defaultStores.stream()

@@ -1,6 +1,7 @@
 package com.keepu.webAPI.controller;
 
 import com.keepu.webAPI.dto.request.CreateLoginRequest;
+import com.keepu.webAPI.dto.request.CreateSecurityKeyRequest;
 import com.keepu.webAPI.dto.response.LoginResponse;
 import com.keepu.webAPI.service.AuthService;
 import jakarta.validation.Valid;
@@ -24,5 +25,10 @@ public class AuthController {
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid CreateLoginRequest request) {
         LoginResponse response = authService.login(request.email(), request.password());
         return ResponseEntity.ok(response);
+    }
+    @PostMapping("/check-security-key")
+    public ResponseEntity<Boolean> checkSecurityKey(@RequestBody @Valid CreateSecurityKeyRequest request) {
+        boolean isValid = authService.checkSecurityKey(request.email(), request.securityKey());
+        return ResponseEntity.ok(isValid);
     }
 }

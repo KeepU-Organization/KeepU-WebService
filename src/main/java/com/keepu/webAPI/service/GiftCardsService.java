@@ -47,4 +47,13 @@ public class GiftCardsService {
                 .map(giftCardsMapper::toGiftCardResponse)
                 .collect(Collectors.toList());
     }
+    @Transactional(readOnly = true)
+    public List<GiftCardResponse> getGiftCardsByStoreId(Integer storeId) {
+        Stores store = storesRepository.findById(storeId)
+                .orElseThrow(() -> new NotFoundException("Tienda no encontrada"));
+        List<GiftCards> giftCards = giftCardsRepository.findByStore(store);
+        return giftCards.stream()
+                .map(giftCardsMapper::toGiftCardResponse)
+                .collect(Collectors.toList());
+    }
 }
