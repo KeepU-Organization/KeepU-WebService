@@ -22,7 +22,8 @@ public class InvitationCodesMapper {
                 invitationCode.getExpiresAt(),
                 invitationCode.getUser().getId(),
                 invitationCode.getChildName(),
-                invitationCode.getChildLastName()
+                invitationCode.getChildLastName(),
+                invitationCode.getChildAge()
         );
     }
 
@@ -33,7 +34,8 @@ public class InvitationCodesMapper {
 
         InvitationCodes invitationCode = new InvitationCodes();
         invitationCode.setChildName(request.childName());
-        invitationCode.setChildLastName(request.childLastNames());
+        invitationCode.setChildLastName(request.childLastName());
+        invitationCode.setChildAge(request.childAge());
         invitationCode.setUser(user);
         return invitationCode;
     }

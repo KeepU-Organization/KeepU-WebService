@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class GiftCardsService {
@@ -36,5 +39,21 @@ public class GiftCardsService {
         GiftCards giftCard = giftCardsRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Gift card no encontrada"));
         return giftCardsMapper.toGiftCardResponse(giftCard);
+    }
+    @Transactional(readOnly = true)
+    public List<GiftCardResponse> getAllGiftCards() {
+        List<GiftCards> giftCards = giftCardsRepository.findAll();
+        return giftCards.stream()
+                .map(giftCardsMapper::toGiftCardResponse)
+                .collect(Collectors.toList());
+    }
+    @Transactional(readOnly = true)
+    public List<GiftCardResponse> getGiftCardsByStoreId(Integer storeId) {
+        Stores store = storesRepository.findById(storeId)
+                .orElseThrow(() -> new NotFoundException("Tienda no encontrada"));
+        List<GiftCards> giftCards = giftCardsRepository.findByStore(store);
+        return giftCards.stream()
+                .map(giftCardsMapper::toGiftCardResponse)
+                .collect(Collectors.toList());
     }
 }

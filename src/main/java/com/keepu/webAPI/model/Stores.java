@@ -1,5 +1,6 @@
 package com.keepu.webAPI.model;
 
+import com.keepu.webAPI.model.enums.StoreType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -20,4 +21,10 @@ public class Stores {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
+
+    @Column(name = "type", nullable = false)
+    private StoreType type; // e.g., "gaming","clothes", etc..
+
+    @Column(name="link", nullable = false)
+    private String link; // e.g., "https://example.com/store"
 }

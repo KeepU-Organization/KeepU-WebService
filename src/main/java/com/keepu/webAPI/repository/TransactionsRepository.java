@@ -14,6 +14,8 @@ import java.util.List;
 
 public interface TransactionsRepository extends JpaRepository<Transactions, Integer> {
     List<Transactions> findByWallet(Wallet wallet);
+
+
     @Query("SELECT t FROM Transactions t WHERE t.wallet = :wallet "
             + "AND (:type IS NULL OR t.transactionType = :type) "
             + "AND (:startDate IS NULL OR t.transactionDate >= :startDate) "

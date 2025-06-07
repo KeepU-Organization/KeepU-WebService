@@ -50,7 +50,22 @@ public class GlobalExceptionHandler {
         public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex) {
         return createErrorResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
-
+    @ExceptionHandler(InvalidInvitationCodeException.class)
+    public ResponseEntity<Object> handleInvalidInvitationCodeException(InvalidInvitationCodeException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(MissingFieldException.class)
+    public ResponseEntity<Object> handleMissingFieldException(MissingFieldException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<Object> handleInsufficientFundsException(InsufficientFundsException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Object> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        return createErrorResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 
     private ResponseEntity<Object> createErrorResponse(String message, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
