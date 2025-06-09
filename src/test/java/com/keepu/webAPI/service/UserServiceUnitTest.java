@@ -359,7 +359,6 @@ public class UserServiceUnitTest {
         // Act & Assert
         assertThrows(InvalidPasswordFormatException.class, () -> userService.registerChild(request));
     }
-
 }
 
 
