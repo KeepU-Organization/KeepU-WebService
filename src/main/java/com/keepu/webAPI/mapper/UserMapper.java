@@ -46,12 +46,12 @@ public class UserMapper {
             id,
             name,
             lastNames,
+            user.getProfilePicture(),
             userType,
             email,
             user.isDarkMode(),
             parent != null ? parent.getPhone():null,
-            child!= null ? child.getAge():null,
-            user.getProfilePicture()
+            child!= null ? child.getAge():null
 
         );
     }
