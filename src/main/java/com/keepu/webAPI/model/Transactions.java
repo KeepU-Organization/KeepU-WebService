@@ -4,6 +4,7 @@ import com.keepu.webAPI.model.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -16,7 +17,7 @@ public class Transactions {
     private Integer id;
 
     @Column(nullable = false)
-    private Double amount;
+    private BigDecimal amount;
 
     @Column(nullable = false)
     private String description;

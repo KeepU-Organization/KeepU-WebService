@@ -96,7 +96,7 @@ public class WalletService {
         Wallet updatedWallet = walletRepository.save(wallet);
 
         CreateTransactionRequest transactionRequest = new CreateTransactionRequest(
-                updatedWallet, amount.doubleValue(), "Depósito realizado", TransactionType.DEPOSIT, null, null);
+                updatedWallet, amount, "Depósito realizado", TransactionType.DEPOSIT, null, null);
         transactionsService.recordTransfer(transactionRequest);
         return walletMapper.toWalletResponse(updatedWallet);
     }
@@ -127,7 +127,7 @@ public class WalletService {
 
         // Registrar la transacción SOLO para el sender
         CreateTransactionRequest transactionRequest = new CreateTransactionRequest(
-                updatedSenderWallet, amount.doubleValue(), "Transferencia realizada a " + receiverWallet.getUser().getName(), TransactionType.TRANSFER, null, null);
+                updatedSenderWallet, amount, "Transferencia realizada a " + receiverWallet.getUser().getName(), TransactionType.TRANSFER, null, null);
         transactionsService.recordTransfer(transactionRequest);
 
         return new TransferResponse(
@@ -167,7 +167,7 @@ public class WalletService {
             giftCardsRepository.save(giftCard);
 
             CreateTransactionRequest transactionRequest = new CreateTransactionRequest(
-                    wallet, giftCard.getAmount().doubleValue(), "Compra de gift card: " + giftCard.getCode(), TransactionType.PURCHASE, giftCard, store);
+                    wallet, giftCard.getAmount(), "Compra de gift card: " + giftCard.getCode(), TransactionType.PURCHASE, giftCard, store);
 
             transactionsService.recordTransfer(transactionRequest);
         }
