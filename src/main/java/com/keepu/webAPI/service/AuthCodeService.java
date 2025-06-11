@@ -4,6 +4,8 @@ import com.keepu.webAPI.dto.request.CreateAuthCodeRequest;
 import com.keepu.webAPI.dto.response.AuthCodeResponse;
 import com.keepu.webAPI.exception.NotFoundException;
 import com.keepu.webAPI.exception.UsedAuthCodeException;
+import com.keepu.webAPI.exception.CodeNotFoundException;
+import com.keepu.webAPI.exception.CodeExpiredException;
 import com.keepu.webAPI.mapper.AuthCodeMapper;
 import com.keepu.webAPI.model.AuthCode;
 import com.keepu.webAPI.model.User;
@@ -57,12 +59,31 @@ public class AuthCodeService {
     }
     @Transactional(readOnly = true)
     public AuthCode getAuthCodeById(Long id, AuthCodeType codeType) {
-        return authCodeRepository.findByUserIdAndCodeType(id,codeType)
+        return authCodeRepository.findTopByUserIdAndCodeType(id, codeType)
                 .orElseThrow(() -> new NotFoundException("Codigo de autenticacion no encontrado"));
     }
     @Transactional(readOnly = true)
     public AuthCode getAuthCodeByCode(String code) {
         return authCodeRepository.findByCode(code)
                 .orElseThrow(() -> new NotFoundException("Codigo de autenticacion no encontrado"));
+    }
+    @Transactional(readOnly = true)
+    public boolean validateAuthCode(Long userId, String code) {
+        AuthCode authCode = authCodeRepository.findByUserAuthUserIdAndCode(userId, code)
+                .orElseThrow(() -> new CodeNotFoundException("Código de autenticación no encontrado"));
+
+        if (authCode.isExpired()) {
+            throw new CodeExpiredException("El código de autenticación ha expirado");
+        }
+
+        if (authCode.isUsed()) {
+            throw new IllegalStateException("El código de autenticación ya fue utilizado");
+        }
+
+        // Marcar el código como usado
+        authCode.setUsed(true);
+        authCodeRepository.save(authCode);
+
+        return true;
     }
 }
