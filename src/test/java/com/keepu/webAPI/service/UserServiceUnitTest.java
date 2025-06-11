@@ -2,12 +2,7 @@ package com.keepu.webAPI.service;
 
 import com.keepu.webAPI.dto.request.*;
 import com.keepu.webAPI.dto.response.*;
-import com.keepu.webAPI.exception.EmailAlreadyExistsException;
-import com.keepu.webAPI.exception.InvalidEmailFormatException;
-import com.keepu.webAPI.exception.InvalidInvitationCodeException;
-import com.keepu.webAPI.exception.InvalidPasswordFormatException;
-import com.keepu.webAPI.exception.CodeExpiredException;
-import com.keepu.webAPI.exception.CodeNotFoundException;
+import com.keepu.webAPI.exception.*;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
 import com.keepu.webAPI.model.Parent;
@@ -21,14 +16,17 @@ import com.keepu.webAPI.repository.ChildrenRepository;
 import com.keepu.webAPI.repository.ParentRepository;
 import com.keepu.webAPI.repository.UserAuthRespository;
 import com.keepu.webAPI.repository.UserRepository;
+import com.keepu.webAPI.utils.EmailPasswordValidator;
+import com.keepu.webAPI.utils.ImageValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -54,6 +52,8 @@ public class UserServiceUnitTest {
     private WalletService walletService;
     @Mock
     private AuthCodeService authCodeService;
+
+
 
 
     @InjectMocks
@@ -420,6 +420,212 @@ public class UserServiceUnitTest {
         // Act & Assert
         assertThrows(CodeNotFoundException.class, () -> authCodeService.validateAuthCode(userId, code));
     }
+
+        //pasword
+
+
+    @Nested
+    @DisplayName("H11 - Cambio de contraseña")
+    class ChangePasswordTests {
+
+        @Test
+        @DisplayName("CP 11.1 Escenario exitoso: el usuario cambia su contraseña correctamente")
+        void testChangePasswordSuccessfully() {
+            Long userId = 1L;
+            String oldPassword = "OldPassword123!";
+            String newPassword = "NewPassword123!";
+            String encodedNewPassword = "encodedNewPassword";
+
+            UserAuth userAuth = new UserAuth();
+            userAuth.setId(userId);
+            userAuth.setPassword("encodedOldPassword");
+
+            ChangePasswordRequest request = new ChangePasswordRequest(userId, oldPassword, newPassword);
+
+            when(userAuthRespository.findById(userId)).thenReturn(Optional.of(userAuth));
+            when(passwordEncoder.matches(oldPassword, userAuth.getPassword())).thenReturn(true);
+            when(passwordEncoder.encode(newPassword)).thenReturn(encodedNewPassword);
+
+            // MOCK ESTÁTICO DEL VALIDADOR
+            try (MockedStatic<EmailPasswordValidator> mockedValidator = mockStatic(EmailPasswordValidator.class)) {
+                mockedValidator.when(() -> EmailPasswordValidator.isValidPassword(newPassword)).thenReturn(true);
+
+                userService.changePassword(request);
+
+                assertEquals(encodedNewPassword, userAuth.getPassword());
+                verify(userAuthRespository).save(userAuth);
+            }
+        }
+
+        @Test
+        @DisplayName("CP 11.2 Falla: el usuario no existe")
+        void testChangePasswordUserNotFound() {
+            // Arrange
+            Long userId = 2L;
+            ChangePasswordRequest request = new ChangePasswordRequest(userId, "any", "any");
+
+            when(userAuthRespository.findById(userId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertThrows(IllegalArgumentException.class, () -> userService.changePassword(request));
+        }
+
+        @Test
+        @DisplayName("CP 11.3 Falla: la contraseña actual es incorrecta")
+        void testChangePasswordIncorrectCurrentPassword() {
+            // Arrange
+            Long userId = 3L;
+            String oldPassword = "WrongPassword";
+            UserAuth userAuth = new UserAuth();
+            userAuth.setId(userId);
+            userAuth.setPassword("encodedOldPassword");
+
+            ChangePasswordRequest request = new ChangePasswordRequest(userId, oldPassword, "NewPassword123!");
+
+            when(userAuthRespository.findById(userId)).thenReturn(Optional.of(userAuth));
+            when(passwordEncoder.matches(oldPassword, userAuth.getPassword())).thenReturn(false);
+
+            // Act & Assert
+            assertThrows(InvalidPasswordException.class, () -> userService.changePassword(request));
+        }
+
+        @Test
+        @DisplayName("CP 11.4 Falla : la nueva contraseña tiene formato inválido")
+        void testChangePasswordInvalidNewPasswordFormat() {
+            // Arrange
+            Long userId = 4L;
+            String oldPassword = "OldPassword123!";
+            String newPassword = "short";
+            UserAuth userAuth = new UserAuth();
+            userAuth.setId(userId);
+            userAuth.setPassword("encodedOldPassword");
+
+            ChangePasswordRequest request = new ChangePasswordRequest(userId, oldPassword, newPassword);
+
+            when(userAuthRespository.findById(userId)).thenReturn(Optional.of(userAuth));
+            when(passwordEncoder.matches(oldPassword, userAuth.getPassword())).thenReturn(true);
+
+            // Simular fallo de validación
+            mockStatic(EmailPasswordValidator.class);
+            when(EmailPasswordValidator.isValidPassword(newPassword)).thenReturn(false);
+
+            // Act & Assert
+            assertThrows(InvalidPasswordFormatException.class, () -> userService.changePassword(request));
+        }
+
+        @Test
+        @DisplayName("CP 11.5 Fallo por autenticación: la contraseña actual no coincide")
+        void testChangePasswordFailsDueToWrongOldPassword() {
+            Long userId = 1L;
+            String wrongOldPassword = "WrongOldPassword123!";
+            String realOldPassword = "RealOldPassword123!";
+            String newPassword = "NewPassword123!";
+
+            UserAuth userAuth = new UserAuth();
+            userAuth.setId(userId);
+            userAuth.setPassword("encodedRealOldPassword");
+
+            ChangePasswordRequest request = new ChangePasswordRequest(userId, wrongOldPassword, newPassword);
+
+            when(userAuthRespository.findById(userId)).thenReturn(Optional.of(userAuth));
+            // Simular que la contraseña no coincide
+            when(passwordEncoder.matches(wrongOldPassword, userAuth.getPassword())).thenReturn(false);
+
+            InvalidPasswordException exception = assertThrows(
+                    InvalidPasswordException.class,
+                    () -> userService.changePassword(request)
+            );
+
+            assertEquals("La contraseña actual no es correcta.", exception.getMessage());
+        }
+    }
+
+        @Nested
+        @DisplayName("h12")
+        class UpdateProfilePictureTest {
+
+            @Mock private UserRepository userRepository;
+            @Mock private MultipartFile file;
+            @InjectMocks private UserService userService;
+
+            @BeforeEach
+            void setUp() {
+                MockitoAnnotations.openMocks(this);
+            }
+
+            @Test
+            @DisplayName("12.1 Escenario 1: Cambio de foto exitoso")
+            void updateProfilePicture_successful() throws Exception {
+                Long userId = 1L;
+                String fakeFileName = "profile.jpg";
+                byte[] fileBytes = "image-content".getBytes();
+
+                User user = new User();
+                user.setId(userId);
+                user.setProfilePicture("uploads/profilePics/old.jpg");
+
+                when(file.getOriginalFilename()).thenReturn(fakeFileName);
+                when(file.getBytes()).thenReturn(fileBytes);
+                when(file.isEmpty()).thenReturn(false);
+                when(file.getContentType()).thenReturn("image/jpeg");
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+                try (MockedStatic<ImageValidator> imageValidator = Mockito.mockStatic(ImageValidator.class)) {
+                    imageValidator.when(() -> ImageValidator.isValidImage(file)).thenReturn(true);
+
+                    userService.updateProfilePicture(userId, file);
+
+                    verify(userRepository).save(user);
+                    assertNotEquals("uploads/profilePics/old.jpg", user.getProfilePicture());
+                    assertTrue(user.getProfilePicture().contains("uploads/profilePics/"));
+                    assertTrue(user.getProfilePicture().endsWith(fakeFileName));
+                }
+            }
+
+            @Test
+            @DisplayName("CP 12.2 Escenario 2: Error por imagen no válida")
+            void updateProfilePicture_invalidImage() {
+                Long userId = 2L;
+
+                when(file.isEmpty()).thenReturn(true);
+
+                try (MockedStatic<ImageValidator> imageValidator = Mockito.mockStatic(ImageValidator.class)) {
+                    imageValidator.when(() -> ImageValidator.isValidImage(file)).thenReturn(false);
+
+                    IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
+                            userService.updateProfilePicture(userId, file)
+                    );
+
+                    assertEquals("La imagen no es válida o supera el tamaño permitido.", exception.getMessage());
+                }
+            }
+
+            @Test
+            @DisplayName("CP 12.3 Escenario 3: Fallo técnico durante la actualización")
+            void updateProfilePicture_ioException() throws Exception {
+                Long userId = 3L;
+
+                User user = new User();
+                user.setId(userId);
+                user.setProfilePicture("uploads/profilePics/default.jpg");
+
+                when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+                when(file.getOriginalFilename()).thenReturn("fail.jpg");
+                when(file.getBytes()).thenThrow(new IOException("Simulated I/O error"));
+
+                try (MockedStatic<ImageValidator> imageValidator = Mockito.mockStatic(ImageValidator.class)) {
+                    imageValidator.when(() -> ImageValidator.isValidImage(file)).thenReturn(true);
+
+                    RuntimeException exception = assertThrows(RuntimeException.class, () ->
+                            userService.updateProfilePicture(userId, file)
+                    );
+
+                    assertTrue(exception.getMessage().contains("Error al guardar la imagen"));
+                }
+            }
+        }
+
+
 }
 
 
