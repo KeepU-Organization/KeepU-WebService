@@ -39,8 +39,9 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        //.requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**").permitAll() // rutas públicas
-                        .requestMatchers("/api/v1/**",
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**", // rutas públicas
+//                        //.requestMatchers("/api/v1/**", //todas las rutas
+//                                "/api/v1/auth/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**").permitAll()
@@ -61,6 +62,7 @@ public class WebSecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

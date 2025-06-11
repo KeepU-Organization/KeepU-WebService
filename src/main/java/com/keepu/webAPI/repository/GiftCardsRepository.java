@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface GiftCardsRepository extends JpaRepository<GiftCards, Integer> {
-    @Query("SELECT g FROM GiftCards g WHERE g.isRedeemed = false")
+    @Query("SELECT g FROM GiftCards g WHERE g.isRedeemed = false AND g.store = :store")
     List<GiftCards> findByStore(Stores store);
 }
