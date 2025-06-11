@@ -14,6 +14,7 @@ import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.ChildrenRepository;
 import com.keepu.webAPI.repository.ParentRepository;
 import com.keepu.webAPI.repository.UserAuthRespository;
+import com.keepu.webAPI.exception.InvalidPasswordException;
 import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
 import lombok.RequiredArgsConstructor;
@@ -181,28 +182,58 @@ public class UserService {
 
         try {
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            String uploadDir = "src/main/java/com/keepu/webAPI/uploads/profilePics";
+            String relativePath = "uploads/profilePics/" + fileName;
+            String uploadDir = "src/main/java/com/keepu/webAPI/" + relativePath;
 
-            File directory = new File(uploadDir);
+            File directory = new File("src/main/java/com/keepu/webAPI/uploads/profilePics");
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
-            Path filePath = Paths.get(uploadDir, fileName);
+            Path filePath = Paths.get(uploadDir);
             Files.write(filePath, file.getBytes());
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-            // Eliminar la imagen anterior si no es la imagen por defecto
             if (user.getProfilePicture() != null && !user.getProfilePicture().equals("uploads/profilePics/default.png")) {
-                Files.deleteIfExists(Paths.get(user.getProfilePicture()));
+                Path oldPath = Paths.get("src/main/java/com/keepu/webAPI/", user.getProfilePicture());
+                Files.deleteIfExists(oldPath);
             }
 
-            user.setProfilePicture(filePath.toString());
+            user.setProfilePicture(relativePath);
             userRepository.save(user);
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
         }
     }
+
+
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        // Buscar UserAuth por ID
+        UserAuth userAuth = userAuthRespository.findById(request.userId())
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+
+        // Verificar contraseña actual
+        if (!passwordEncoder.matches(request.currentPassword(), userAuth.getPassword())) {
+            throw new InvalidPasswordException("La contraseña actual no es correcta.");
+        }
+
+        // Validar nueva contraseña
+        if (!EmailPasswordValidator.isValidPassword(request.newPassword())) {
+            throw new InvalidPasswordFormatException(
+                    "La nueva contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número, un carácter especial y sin espacios."
+            );
+        }
+
+        // Codificar y guardar la nueva contraseña
+        String encodedNewPassword = passwordEncoder.encode(request.newPassword());
+        userAuth.setPassword(encodedNewPassword);
+        userAuthRespository.save(userAuth);
+    }
+
+
+
 }
