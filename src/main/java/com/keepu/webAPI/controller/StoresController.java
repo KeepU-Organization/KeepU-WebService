@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/stores")
 @RequiredArgsConstructor
@@ -23,5 +25,9 @@ public class StoresController {
     @GetMapping("/{id}")
     public ResponseEntity<StoreResponse> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(storesService.getStoreById(id));
+    }
+    @GetMapping
+    public ResponseEntity<List<StoreResponse>> getAll() {
+        return ResponseEntity.ok(storesService.getAllStores());
     }
 }

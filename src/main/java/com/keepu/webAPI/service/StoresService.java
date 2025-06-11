@@ -10,6 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class StoresService {
@@ -29,5 +32,12 @@ public class StoresService {
         Stores store = storesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tienda no encontrada"));
         return storesMapper.toStoreResponse(store);
+    }
+    @Transactional(readOnly = true)
+    public List<StoreResponse> getAllStores() {
+        List<Stores> stores = storesRepository.findAll();
+        return stores.stream()
+                .map(storesMapper::toStoreResponse)
+                .collect(Collectors.toList());
     }
 }

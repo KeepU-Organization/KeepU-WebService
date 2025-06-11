@@ -16,7 +16,9 @@ public class StoresMapper {
                 store.getId(),
                 store.getName(),
                 store.getLocation(),
-                store.isActive()
+                store.isActive(),
+                store.getType(),
+                store.getLink()
         );
     }
 
@@ -29,6 +31,8 @@ public class StoresMapper {
         store.setName(request.name());
         store.setLocation(request.location());
         store.setActive(true);
+        store.setType(request.type());
+        store.setLink(request.link());
         return store;
     }
 }

@@ -1,14 +1,19 @@
 package com.keepu.webAPI.service;
 
+import com.keepu.webAPI.dto.request.CreateTransactionRequest;
+import com.keepu.webAPI.model.GiftCards;
+import com.keepu.webAPI.model.Stores;
 import com.keepu.webAPI.model.Transactions;
 import com.keepu.webAPI.model.Wallet;
 import com.keepu.webAPI.model.enums.TransactionType;
+import com.keepu.webAPI.repository.StoresRepository;
 import com.keepu.webAPI.repository.TransactionsRepository;
 import com.keepu.webAPI.repository.WalletRepository;
 import com.keepu.webAPI.exception.NotFoundException;
 import com.keepu.webAPI.dto.response.TransactionResponse;
 import com.keepu.webAPI.mapper.TransactionsMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.Store;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -31,14 +36,19 @@ public class TransactionsService {
                 .toList();
     }
 
-
-    public void recordTransfer(Wallet senderWallet, double amount, String description,TransactionType transactionType) {
+    public void recordTransfer(CreateTransactionRequest request) {
         Transactions transaction = new Transactions();
-        transaction.setWallet(senderWallet);
-        transaction.setAmount(amount);
-        transaction.setDescription(description);
-        transaction.setTransactionType(transactionType);
+
+        transaction.setWallet(request.wallet());
+        transaction.setAmount(request.amount());
+        transaction.setDescription(request.description());
+        transaction.setTransactionType(request.transactionType());
         transaction.setTransactionDate(LocalDateTime.now());
+
+        transaction.setStore(request.store());
+        transaction.setGiftCard(request.giftCard());
+
+
         transactionsRepository.save(transaction);
     }
 }

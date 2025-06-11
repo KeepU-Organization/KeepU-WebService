@@ -15,8 +15,9 @@ public record CreateChildrenRequest(
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 8, message = "Password must be at least 8 characters long")
         String password,
-
         @NotBlank(message = "Invitation code cannot be blank")
         String invitationCode
+
+
 
 ) {}

@@ -9,5 +9,7 @@ public record CreateInvitationCodeRequest(
         @NotNull(message="El nombre del hijo no puede se null")
         String childName,
         @NotNull(message="El apellido del hijo no puede ser nulo")
-        String childLastNames
+        String childLastName,
+        @NotNull(message="La edad del hijo no puede ser nulo")
+        Integer childAge
 ) {}

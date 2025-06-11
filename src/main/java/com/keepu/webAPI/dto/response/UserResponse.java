@@ -9,20 +9,21 @@ public record UserResponse(
         Long id,
         String name,
         String lastNames,
+        String profilePicture,
         UserType userType,
         String email,
 
         boolean darkMode,
 
         Integer phoneNumber,
-        Integer age,
-        String profilePicture
+        Integer age
 ) {
     public record ChildSummary(
             Long id,
             String name,
             String lastNames,
-            String email
+            String email,
+            Integer age
     ){}
     public record ParentSummary(
             Long id,

@@ -46,12 +46,12 @@ public class UserMapper {
             id,
             name,
             lastNames,
+            user.getProfilePicture(),
             userType,
             email,
             user.isDarkMode(),
             parent != null ? parent.getPhone():null,
-            child!= null ? child.getAge():null,
-            user.getProfilePicture()
+            child!= null ? child.getAge():null
 
         );
     }
@@ -110,7 +110,6 @@ public class UserMapper {
     public Children toChildEntity(CreateChildrenRequest request, UserAuth userAuth, User user) {
         Children child = new Children();
         child.setUser(user);
-        child.setAge(99);
         return child;
     }
 

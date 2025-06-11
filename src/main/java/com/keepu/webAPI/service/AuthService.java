@@ -19,12 +19,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    @Autowired
     private final UserAuthRespository userAuthRespository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenProvider jwtTokenProvider;
     @Transactional
     public LoginResponse login(String email, String password) {
         // Validate email and password format
@@ -49,6 +46,20 @@ public class AuthService {
 
         return new LoginResponse(user,token);
     }
+    @Transactional
+    public boolean checkSecurityKey(String email, String securityKey) {
+        // Validate email format
+        if (!EmailPasswordValidator.isValidEmail(email)) {
+            throw new InvalidEmailFormatException("Formato de correo electrónico inválido");
+        }
 
+        UserAuth user = userAuthRespository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
+
+        if (!passwordEncoder.matches(securityKey, user.getSecurityKey())) {
+            throw new InvalidCredentialsException("Clave de seguridad inválida");
+        }
+        return true;
+    }
 }
 
