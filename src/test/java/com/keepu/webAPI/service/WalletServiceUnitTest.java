@@ -300,7 +300,7 @@ public class WalletServiceUnitTest {
                 wallet.getId(),
                 wallet.getWalletId(),
                 wallet.getWalletType(),
-                wallet.getBalance().subtract(amount), 
+                wallet.getBalance().subtract(amount),
                 user.getId()
         );
 
@@ -316,21 +316,28 @@ public class WalletServiceUnitTest {
         assertNotNull(result);
         assertEquals("Amazon", result.storeName());
         assertEquals(walletId, result.wallet().walletId());
-        assertEquals(amount, result.amount()); /
+        assertEquals(amount, result.amount());
         assertEquals(2, result.giftCards().size());
     }
 
     @DisplayName("CP21 - Cantidad negativa o nula de giftcards")
     @Test
     public void testCP21_purchaseGiftCardWithInvalidQuantity_shouldThrowException() {
-        String walletId = "wallet123";
+        String walletId = "wallet-sender-123";
         Integer storeId = 1;
-        Integer amountGiftCards = 0;
-        BigDecimal amount = BigDecimal.valueOf(50);
+        Integer quantity = 0;
+        BigDecimal amount = BigDecimal.valueOf(50.0);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            walletService.purchaseGiftCard(walletId, storeId, amountGiftCards, amount);
-        });
+        Wallet wallet = new Wallet();
+        wallet.setWalletId(walletId);
+        wallet.setBalance(BigDecimal.valueOf(200.0));
+
+        when(walletRepository.findByWalletId(walletId)).thenReturn(Optional.of(wallet));
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> walletService.purchaseGiftCard(walletId, storeId, quantity, amount)
+        );
 
         assertEquals("La cantidad de gift cards debe ser mayor que cero", exception.getMessage());
     }
@@ -338,25 +345,34 @@ public class WalletServiceUnitTest {
     @DisplayName("CP22 - Saldo insuficiente")
     @Test
     public void testCP22_purchaseGiftCardWithInsufficientBalance_shouldThrowException() {
-        String walletId = "wallet123";
+        String walletId = "wallet-sender-123";
         Integer storeId = 1;
-        Integer amountGiftCards = 2;
-        BigDecimal amount = BigDecimal.valueOf(80);
+        Integer quantity = 1;
+        BigDecimal amount = BigDecimal.valueOf(150.0);
 
         Wallet wallet = new Wallet();
-        wallet.setBalance(BigDecimal.valueOf(100));
+        wallet.setWalletId(walletId);
+        wallet.setBalance(BigDecimal.valueOf(100.0)); // menos que amount
 
         Stores store = new Stores();
+        store.setId(storeId);
+        store.setName("Amazon");
+
+        GiftCards giftCard = new GiftCards();
+        giftCard.setId(1);
+        giftCard.setStore(store);
+        giftCard.setRedeemed(false);
+        giftCard.setAmount(amount);
+        giftCard.setCode("GC001");
 
         when(walletRepository.findByWalletId(walletId)).thenReturn(Optional.of(wallet));
         when(storesRepository.findById(storeId)).thenReturn(Optional.of(store));
-        when(giftCardsRepository.findByStore(store)).thenReturn(List.of(
-                buildGiftCard(false), buildGiftCard(false)
-        ));
+        when(giftCardsRepository.findByStore(store)).thenReturn(List.of(giftCard));
 
-        InsufficientFundsException exception = assertThrows(InsufficientFundsException.class, () -> {
-            walletService.purchaseGiftCard(walletId, storeId, amountGiftCards, amount);
-        });
+        InsufficientFundsException exception = assertThrows(
+                InsufficientFundsException.class,
+                () -> walletService.purchaseGiftCard(walletId, storeId, quantity, amount)
+        );
 
         assertEquals("Saldo insuficiente para realizar la compra", exception.getMessage());
     }
@@ -364,26 +380,27 @@ public class WalletServiceUnitTest {
     @DisplayName("CP23 - Giftcards no disponibles en la tienda")
     @Test
     public void testCP23_purchaseGiftCardWithNoAvailableGiftCards_shouldThrowException() {
-        String walletId = "wallet123";
+        String walletId = "wallet-sender-123";
         Integer storeId = 1;
-        Integer amountGiftCards = 3;
-        BigDecimal amount = BigDecimal.valueOf(50);
+        Integer quantity = 1;
+        BigDecimal amount = BigDecimal.valueOf(50.0);
 
         Wallet wallet = new Wallet();
-        wallet.setBalance(BigDecimal.valueOf(200));
+        wallet.setWalletId(walletId);
+        wallet.setBalance(BigDecimal.valueOf(200.0));
 
         Stores store = new Stores();
+        store.setId(storeId);
+        store.setName("Amazon");
 
-        // Solo hay 2 giftcards no redimidas pero se solicitan 3
         when(walletRepository.findByWalletId(walletId)).thenReturn(Optional.of(wallet));
         when(storesRepository.findById(storeId)).thenReturn(Optional.of(store));
-        when(giftCardsRepository.findByStore(store)).thenReturn(List.of(
-                buildGiftCard(false), buildGiftCard(false)
-        ));
+        when(giftCardsRepository.findByStore(store)).thenReturn(Collections.emptyList()); // no giftcards
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            walletService.purchaseGiftCard(walletId, storeId, amountGiftCards, amount);
-        });
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> walletService.purchaseGiftCard(walletId, storeId, quantity, amount)
+        );
 
         assertEquals("No hay gift cards disponibles para esta tienda", exception.getMessage());
     }
