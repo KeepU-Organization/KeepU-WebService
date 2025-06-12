@@ -44,4 +44,8 @@ public class UserAuth {
             this.securityKey = this.password;
         }
     }
+
+    public void setId(Long userId) {
+
+    }
 }
