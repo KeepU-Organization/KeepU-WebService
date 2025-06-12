@@ -29,7 +29,9 @@ import org.mockito.MockitoAnnotations;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import java.util.*;
+
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -252,6 +254,69 @@ public class WalletServiceUnitTest {
                     transferAmount
             );
         });
+    }
+    @Test
+    @DisplayName("CP15.1 - Recarga exitosa a wallet válida")
+    void rechargeWallet_validWallet_shouldUpdateBalance() {
+        // Arrange
+        Wallet wallet = new Wallet();
+        wallet.setId(1);
+        wallet.setBalance(new BigDecimal("100.00"));
+        wallet.setWalletId("wallet-sender-123");
+        wallet.setWalletType(WalletType.PARENT);
+        wallet.setCreatedAt(LocalDateTime.of(2023, 10, 1, 10, 0, 0));
+        wallet.setActive(true);
+        wallet.setUser(new User(1L, "user-sender", "User Sender", "pfp.jpg", UserType.PARENT, "email@gmail.com", false, true));
+        BigDecimal amount = BigDecimal.valueOf(100.00);
+
+        WalletResponse expectedResponse = new WalletResponse(
+                wallet.getId(),
+                wallet.getWalletId(),
+                wallet.getWalletType(),
+                wallet.getBalance().add(amount),
+                wallet.getUser().getId()
+        );
+
+        when(walletRepository.findByWalletId(wallet.getWalletId())).thenReturn(Optional.of(wallet));
+        when(walletRepository.save(wallet)).thenReturn(wallet);
+        when(walletMapper.toWalletResponse(wallet)).thenReturn(expectedResponse);
+
+        // Act
+        WalletResponse response = walletService.deposit(wallet.getWalletId(), amount);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(wallet.getWalletId(), response.walletId());
+        assertTrue(BigDecimal.valueOf(200.00).compareTo(response.balance()) == 0);
+        verify(walletRepository, times(1)).findByWalletId(wallet.getWalletId());
+        verify(walletRepository, times(1)).save(wallet);
+        verify(walletMapper, times(1)).toWalletResponse(wallet);
+    }
+
+    @Test
+    @DisplayName("CP15.2 - Monto de recarga inválido (negativo)")
+    void rechargeWallet_negativeAmount_shouldThrowException() {
+        // Arrange
+        String walletId = "W-1";
+        BigDecimal amount = BigDecimal.valueOf(-20.00);
+
+        // Act & Assert
+        assertThrows(IllegalArgumentException.class, () -> walletService.deposit(walletId.toString(), amount));
+        verify(walletRepository, never()).findByWalletId(walletId);
+    }
+
+    @Test
+    @DisplayName("CP15.3 - Recarga a wallet inexistente")
+    void rechargeWallet_nonExistentWallet_shouldThrowException() {
+        // Arrange
+        String walletId = "W-8181";
+        BigDecimal amount = BigDecimal.valueOf(100.00);
+
+        when(walletRepository.findByWalletId(walletId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> walletService.deposit(walletId, amount));
+        verify(walletRepository, times(1)).findByWalletId(walletId);
     }
 
     @DisplayName("CP20 - Se realiza la compra con éxito")

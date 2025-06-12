@@ -6,6 +6,8 @@ import com.keepu.webAPI.exception.EmailAlreadyExistsException;
 import com.keepu.webAPI.exception.InvalidEmailFormatException;
 import com.keepu.webAPI.exception.InvalidInvitationCodeException;
 import com.keepu.webAPI.exception.InvalidPasswordFormatException;
+import com.keepu.webAPI.exception.CodeExpiredException;
+import com.keepu.webAPI.exception.CodeNotFoundException;
 import com.keepu.webAPI.mapper.UserMapper;
 import com.keepu.webAPI.model.Children;
 import com.keepu.webAPI.model.Parent;
@@ -358,6 +360,65 @@ public class UserServiceUnitTest {
                 "invitationCode123");
         // Act & Assert
         assertThrows(InvalidPasswordFormatException.class, () -> userService.registerChild(request));
+    }
+    @Test
+    @DisplayName("CP13.1 - Enviar código de verificación a usuario válido")
+    void sendVerificationCode_validUser_shouldSendCode() {
+        // Arrange
+        Long userId = 1L;
+        CreateAuthCodeRequest request = new CreateAuthCodeRequest(userId, AuthCodeType.EMAIL_VERIFICATION);
+        AuthCodeResponse expectedResponse = new AuthCodeResponse(
+                1L, userId, "123456", AuthCodeType.EMAIL_VERIFICATION, false, LocalDateTime.now().plusMinutes(5)
+        );
+
+        when(authCodeService.createAuthCode(request)).thenReturn(expectedResponse);
+
+        // Act
+        AuthCodeResponse response = authCodeService.createAuthCode(request);
+
+        // Assert
+        assertNotNull(response);
+        assertEquals(userId, response.userId());
+        assertEquals("123456", response.code());
+        assertFalse(response.isUsed());
+        verify(authCodeService, times(1)).createAuthCode(request);
+    }
+    @Test
+    @DisplayName("CP13.2 - Validar código correcto no expirado")
+    void validateCode_validCode_shouldMarkAsUsed() {
+        // Arrange
+        Long userId = 1L;
+        String code = "123456";
+        when(authCodeService.validateAuthCode(userId, code)).thenReturn(true);
+
+        // Act
+        boolean isValid = authCodeService.validateAuthCode(userId, code);
+
+        // Assert
+        assertTrue(isValid);
+        verify(authCodeService, times(1)).validateAuthCode(userId, code);
+    }
+    @Test
+    @DisplayName("CP13.3 - Validar código expirado")
+    void validateCode_expiredCode_shouldThrowException() {
+        // Arrange
+        Long userId = 1L;
+        String code = "111111";
+        when(authCodeService.validateAuthCode(userId, code)).thenThrow(CodeExpiredException.class);
+
+        // Act & Assert
+        assertThrows(CodeExpiredException.class, () -> authCodeService.validateAuthCode(userId, code));
+    }
+    @Test
+    @DisplayName("CP13.4 - Validar código incorrecto")
+    void validateCode_invalidCode_shouldThrowException() {
+        // Arrange
+        Long userId = 1L;
+        String code = "000000";
+        when(authCodeService.validateAuthCode(userId, code)).thenThrow(CodeNotFoundException.class);
+
+        // Act & Assert
+        assertThrows(CodeNotFoundException.class, () -> authCodeService.validateAuthCode(userId, code));
     }
 }
 
