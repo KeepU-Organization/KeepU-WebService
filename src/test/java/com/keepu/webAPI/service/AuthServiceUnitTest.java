@@ -15,7 +15,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+//
+import com.keepu.webAPI.exception.InvalidEmailFormatException;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -110,4 +111,60 @@ public class AuthServiceUnitTest {
         verify(userAuthRespository, times(1)).findByEmail(email);
         verify(passwordEncoder, times(1)).matches(password, userAuth.getPassword());
     }
+
+    @Test
+    @DisplayName("CP7.1 - Validar clave de seguridad correcta")
+    void validateSecurityKey_validKey_shouldReturnTrue() {
+        // Arrange
+        String email = "user1@example.com";
+        String securityKey = "Validkey123";
+        User user = new User();
+        user.setId(1L);
+        user.setEmail(email);
+
+        UserAuth userAuth = new UserAuth();
+        userAuth.setUserId(1L);
+        userAuth.setUser(user);
+        userAuth.setSecurityKey("encodedKey");
+        when(userAuthRespository.findByEmail(email)).thenReturn(java.util.Optional.of(userAuth));
+        when(passwordEncoder.matches(securityKey, userAuth.getSecurityKey())).thenReturn(true);
+
+        boolean result = authService.checkSecurityKey(email, securityKey);
+
+        assertTrue(result);
+        verify(userAuthRespository, times(1)).findByEmail(email);
+        verify(passwordEncoder, times(1)).matches(securityKey, userAuth.getSecurityKey());
+    }
+    @Test
+    @DisplayName("CP 7.2 - Validar clave de seguridad incorrecta")
+    void checkSecurityKey_invalidKey_shouldThrowException() {
+        String email = "user1@example.com";
+        String securityKey = "WrongKey";
+        User user = new User();
+        user.setId(1L);
+        user.setEmail(email);
+
+        UserAuth userAuth = new UserAuth();
+        userAuth.setUserId(1L);
+        userAuth.setUser(user);
+        userAuth.setSecurityKey("encodedKey");
+
+        when(userAuthRespository.findByEmail(email)).thenReturn(java.util.Optional.of(userAuth));
+        when(passwordEncoder.matches(securityKey, userAuth.getSecurityKey())).thenReturn(false);
+
+        assertThrows(InvalidCredentialsException.class, () -> authService.checkSecurityKey(email, securityKey));
+        verify(userAuthRespository, times(1)).findByEmail(email);
+        verify(passwordEncoder, times(1)).matches(securityKey, userAuth.getSecurityKey());
+    }
+
+    @Test
+    @DisplayName("CP 7.3 - Validar clave de seguridad con email de formato inválido")
+    void checkSecurityKey_invalidEmailFormat_shouldThrowException() {
+        String invalidEmail = "correo-invalido";
+        String securityKey = "AnyKey";
+
+        assertThrows(InvalidEmailFormatException.class, () -> authService.checkSecurityKey(invalidEmail, securityKey));
+        verify(userAuthRespository, never()).findByEmail(anyString());
+    }
+
 }
