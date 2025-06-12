@@ -48,8 +48,8 @@ public class StoresInitializer implements CommandLineRunner {
             // Crear 10 gift cards para cada tienda
             if (giftCardsRepository.count() == 0) {
                 for (StoreResponse store : createdStores) {
+                    BigDecimal randomAmount = BigDecimal.valueOf(10 + random.nextInt(91)); // Valores entre 10 y 100
                     for (int i = 0; i < 10; i++) {
-                        BigDecimal randomAmount = BigDecimal.valueOf(10 + random.nextInt(91)); // Valores entre 10 y 100
                         String code = generateRandomCode();
                         CreateGiftCardRequest giftCardRequest = new CreateGiftCardRequest(
                                 code,

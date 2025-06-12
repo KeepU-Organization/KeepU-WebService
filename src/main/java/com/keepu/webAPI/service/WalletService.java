@@ -149,6 +149,7 @@ public class WalletService {
                 .orElseThrow(() -> new NotFoundException("Tienda no encontrada"));
         List<GiftCards> giftcards = giftCardsRepository.findByStore(store);
 
+
         if (giftcards.isEmpty() || giftcards.size() < amountGiftCards ) {
             throw new NotFoundException("No hay gift cards disponibles para esta tienda");
         }
