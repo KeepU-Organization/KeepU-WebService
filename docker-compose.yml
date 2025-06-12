@@ -1,0 +1,30 @@
+version: '3.8'
+services:
+  database:
+    image: postgres:15
+    container_name: keepu_database
+    environment:
+      POSTGRES_USER: keepu_user
+      POSTGRES_PASSWORD: keepu_password
+      POSTGRES_DB: keepu_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: keepu_backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/keepu_db
+      SPRING_DATASOURCE_USERNAME: keepu_user
+      SPRING_DATASOURCE_PASSWORD: keepu_password
+    ports:
+      - "8080:8080"
+    depends_on:
+      - database
+
+volumes:
+  db_data:
