@@ -5,6 +5,7 @@ import com.keepu.webAPI.dto.request.CreateParentRequest;
 import com.keepu.webAPI.dto.request.CreateUserRequest;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.UserNotFoundException;
+import com.keepu.webAPI.dto.request.ChangePasswordRequest;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.model.UserAuth;
@@ -170,6 +171,12 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error técnico: " + e.getMessage());
         }
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
 
 }
