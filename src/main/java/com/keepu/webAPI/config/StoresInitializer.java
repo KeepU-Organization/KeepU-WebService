@@ -3,13 +3,20 @@ package com.keepu.webAPI.config;
 import com.keepu.webAPI.dto.request.CreateGiftCardRequest;
 import com.keepu.webAPI.dto.request.CreateStoreRequest;
 import com.keepu.webAPI.dto.response.StoreResponse;
+import com.keepu.webAPI.model.User;
+import com.keepu.webAPI.model.UserAuth;
 import com.keepu.webAPI.model.enums.StoreType;
+import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.repository.GiftCardsRepository;
 import com.keepu.webAPI.repository.StoresRepository;
+import com.keepu.webAPI.repository.UserAuthRespository;
+import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.service.GiftCardsService;
 import com.keepu.webAPI.service.StoresService;
+import com.keepu.webAPI.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -24,8 +31,10 @@ public class StoresInitializer implements CommandLineRunner {
     private final StoresRepository storesRepository;
     private final GiftCardsService giftCardsService;
     private final GiftCardsRepository giftCardsRepository;
+    private final UserService userService;
+    private final UserRepository userRepository;
     private final Random random = new Random();
-
+    private final PasswordEncoder passwordEncoder;
     @Override
     public void run(String... args) {
         // Solo crear tiendas si no existen
@@ -62,6 +71,27 @@ public class StoresInitializer implements CommandLineRunner {
                 System.out.println("Gift cards creadas exitosamente");
             }
         }
+
+        // crear un user de tipo admin:
+        if (userRepository.findByEmail("admin@keepu.com").isEmpty()) {
+            User adminUser = new User();
+            adminUser.setName("admin");
+            adminUser.setLastNames("1");
+            adminUser.setEmail("admin@keepu.com");
+            adminUser.setUserType(UserType.ADMIN);
+            UserAuth adminAuth = new UserAuth();
+            adminAuth.setEmailVerified(true);
+
+            String encodedNewPassword = passwordEncoder.encode("@Dmin12345");
+
+            adminAuth.setPassword(encodedNewPassword);
+            adminAuth.setUser(adminUser);
+
+            userService.createAdminUser(adminUser, adminAuth);
+            System.out.println("Usuario admin creado exitosamente");
+        }
+
+
     }
 
     private String generateRandomCode() {

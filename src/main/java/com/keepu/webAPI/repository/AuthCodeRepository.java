@@ -2,6 +2,7 @@ package com.keepu.webAPI.repository;
 
 import com.keepu.webAPI.dto.response.AuthCodeResponse;
 import com.keepu.webAPI.model.AuthCode;
+import com.keepu.webAPI.model.UserAuth;
 import com.keepu.webAPI.model.enums.AuthCodeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,4 +20,6 @@ public interface AuthCodeRepository extends JpaRepository<AuthCode, Integer> {
     Optional<AuthCode> findByUserAuthUserIdAndCode(Long userId, String code);
 
     AuthCodeType code(String code);
+
+    Optional<AuthCode>findByUserAuth(UserAuth userAuth);
 }
