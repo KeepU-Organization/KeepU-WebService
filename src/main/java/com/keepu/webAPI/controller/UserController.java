@@ -25,6 +25,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -142,7 +143,9 @@ public class UserController {
             @ApiResponse(responseCode = "404", content= {@Content(schema = @Schema()) }),
             @ApiResponse(responseCode = "500",content= {@Content(schema = @Schema())
             }) })
+
     @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserAuth>> getAllUsersAuth() {
         return ResponseEntity.ok(userService.getAllUsersAuth());
 
@@ -177,6 +180,12 @@ public class UserController {
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
         userService.changePassword(request);
         return ResponseEntity.ok("Contraseña actualizada correctamente.");
+    }
+    @DeleteMapping("/{userId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok("Usuario eliminado correctamente.");
     }
 
 }

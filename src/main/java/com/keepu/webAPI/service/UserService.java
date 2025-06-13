@@ -11,11 +11,8 @@ import com.keepu.webAPI.model.*;
 import com.keepu.webAPI.model.enums.AuthCodeType;
 import com.keepu.webAPI.model.enums.UserType;
 import com.keepu.webAPI.model.enums.WalletType;
-import com.keepu.webAPI.repository.ChildrenRepository;
-import com.keepu.webAPI.repository.ParentRepository;
-import com.keepu.webAPI.repository.UserAuthRespository;
+import com.keepu.webAPI.repository.*;
 import com.keepu.webAPI.exception.InvalidPasswordException;
-import com.keepu.webAPI.repository.UserRepository;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,6 +42,15 @@ public class UserService {
     private final ParentChildrenService parentChildrenService;
     private final AuthCodeService authCodeService;
     private final UserAuthRespository userAuthRespository;
+    private final TransactionsRepository transactionsRepository;
+    private  final WalletRepository walletRepository;
+    private final SpendingLimitsRepository spendingLimitsRepository;
+    private final SavingGoalsRepository savingGoalsRepository;
+    private final AuthCodeRepository authCodeRepository;
+    private final InvitationCodesRepository invitationCodesRepository;
+    private final UserBadgesRepository userBadgesRepository;
+    private final UserCourseProgressRepository userCourseProgressRepository;
+    private final UserContentProgressRepository userContentProgressRepository;
 
     @Transactional
     public UserResponse registerParent(CreateParentRequest request) {
@@ -53,12 +59,6 @@ public class UserService {
         UserAuth newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
         newUser.getUser().setUserType(UserType.PARENT);
-
-
-        // Asignar imagen por defecto
-
-        String defaultImagePath = "uploads/profilePics/default.jpg";
-        newUser.getUser().setProfilePicture(defaultImagePath);
 
         User savedUser = userRepository.save(newUser.getUser());
 
@@ -98,10 +98,6 @@ public class UserService {
         UserAuth newUser = userMapper.toUserEntity(request);
         newUser.setPassword(encodedPassword);
         newUser.getUser().setUserType(UserType.CHILD);
-
-        // Asignar imagen por defecto
-        String defaultImagePath = "uploads/profilePics/default.jpg";
-        newUser.getUser(). setProfilePicture(defaultImagePath);
 
         User savedUser = userRepository.save(newUser.getUser());
 
@@ -233,7 +229,56 @@ public class UserService {
         userAuth.setPassword(encodedNewPassword);
         userAuthRespository.save(userAuth);
     }
+    @Transactional
+    public void deleteUser(Long userId) {
+        UserAuth userAuth = userAuthRespository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
 
+        // si tiene spending limits y saving goals, eliminarlos
+
+        Wallet wallet = walletRepository.findByUser(userAuth.getUser())
+                .orElseThrow(() -> new IllegalArgumentException("Wallet not found for user."));
+
+        spendingLimitsRepository.findByWallet(wallet).ifPresent(spendingLimitsRepository::delete);
+        savingGoalsRepository.findByUser(userAuth.getUser()).ifPresent(savingGoalsRepository::delete);
+        walletRepository.delete(wallet);
+
+        authCodeRepository.findByUserAuth(userAuth).ifPresent(authCodeRepository::delete);
+
+        // Eliminar el Parent si existe
+        if (userAuth.getUser().getUserType() == UserType.PARENT) {
+
+            invitationCodesRepository.findByUser(userAuth.getUser())
+                    .ifPresent(invitationCodesRepository::delete);
+            parentRepository.deleteByUserId(userId);
+        }
+
+        // Eliminar el Child si existe
+        if (userAuth.getUser().getUserType() == UserType.CHILD) {
+            userBadgesRepository.findByUser(userAuth.getUser())
+                    .ifPresent(userBadgesRepository::delete);
+
+            userCourseProgressRepository.findByUser(userAuth.getUser())
+                    .ifPresent(userCourseProgressRepository::delete);
+
+            userContentProgressRepository.findByUser(userAuth.getUser())
+                    .ifPresent(userContentProgressRepository::delete);
+
+            childrenRepository.deleteByUserId(userId);
+        }
+
+        userAuthRespository.delete(userAuth);
+        // Eliminar el usuario de la base de datos
+        userRepository.delete(userAuth.getUser());
+
+
+
+    }
+    @Transactional
+    public void createAdminUser(User user, UserAuth auth) {
+        userRepository.save(user);
+        userAuthRespository.save(auth);
+    }
 
 
 }

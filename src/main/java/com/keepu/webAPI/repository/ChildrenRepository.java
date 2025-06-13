@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ChildrenRepository extends JpaRepository<Children, Long> {
     Children findByUserId(Long userId);
+
+    void deleteByUserId(Long userId);
 }
