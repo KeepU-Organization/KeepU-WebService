@@ -14,7 +14,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./
       dockerfile: Dockerfile
     container_name: keepu_backend
     environment:
@@ -28,7 +28,9 @@ services:
 
   frontend:
     build:
+
       context: ../../Frontend/FrontEnd
+
       dockerfile: Dockerfile
     container_name: keepu_frontend
     ports:
