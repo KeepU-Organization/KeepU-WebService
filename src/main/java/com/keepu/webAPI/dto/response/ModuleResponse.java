@@ -5,5 +5,8 @@ public record ModuleResponse(
         String title,
         String description,
         Integer orderIndex,
-        Integer courseId
+        String courseCode,
+        String imageUrl,
+        Integer duration,
+        String code
 ) {}

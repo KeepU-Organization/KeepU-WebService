@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ModulesService {
@@ -22,7 +24,7 @@ public class ModulesService {
 
     @Transactional
     public ModuleResponse createModule(CreateModuleRequest request) {
-        Course course = courseRepository.findById(request.courseId())
+        Course course = courseRepository.findByCode(request.courseCode())
                 .orElseThrow(() -> new NotFoundException("Curso no encontrado"));
 
         Modules module = modulesMapper.toModuleEntity(request, course);
@@ -36,5 +38,23 @@ public class ModulesService {
         Modules module = modulesRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Módulo no encontrado"));
         return modulesMapper.toModuleResponse(module);
+    }
+    @Transactional (readOnly = true)
+    public List<ModuleResponse> getModulesByCourseId(Integer courseId) {
+        List<Modules> modules = modulesRepository.findByCourseId(courseId);
+        if (modules.isEmpty()) {
+            throw new NotFoundException("No se encontraron módulos para el curso con ID: " + courseId);
+        }
+        return modulesMapper.toModuleResponseList(modules);
+    }
+    @Transactional (readOnly = true)
+    public List<ModuleResponse> getModulesByCourseCode(String courseCode) {
+        Course course = courseRepository.findByCode(courseCode)
+                .orElseThrow(() -> new NotFoundException("Curso no encontrado con código: " + courseCode));
+        List<Modules> modules = modulesRepository.findByCourseId(course.getId());
+        if (modules.isEmpty()) {
+            throw new NotFoundException("No se encontraron módulos para el curso con código: " + courseCode);
+        }
+        return modulesMapper.toModuleResponseList(modules);
     }
 }

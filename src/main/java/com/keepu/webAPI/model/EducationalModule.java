@@ -13,7 +13,7 @@ public class EducationalModule {
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false, columnDefinition = "HTML")
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)

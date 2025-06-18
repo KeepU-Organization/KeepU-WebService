@@ -13,7 +13,7 @@ public class ContentItems {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false, length = 50)
+    @Column(nullable = false, length = 100)
     private String title;
 
     @Column(nullable = false, length = 200)
@@ -22,8 +22,12 @@ public class ContentItems {
     @Column(nullable = false)
     private int orderIndex;
 
-    @Column(nullable = false)
-    private String url;
+    @Column(nullable = true, length = 255)
+    private String url; // Optional URL for the content item, can be null if not applicable
+
+    @Lob
+    @Column(name = "content_data", nullable = true, columnDefinition = "TEXT")
+    private String contentData; // Optional content data, can be null if not applicable
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "module_id", nullable = false)
@@ -32,4 +36,13 @@ public class ContentItems {
     @Enumerated(EnumType.STRING)
     @Column(name = "content_type", nullable = false)
     private ContentType contentType;
+
+    @Column(name = "imageUrl", nullable = true)
+    private String imageUrl; // Optional image URL for the content item
+
+    @Column(name = "duration", nullable = true)
+    private Integer duration; // Duration in minutes, nullable if not applicable
+
+    @Column(name="code", length = 50, unique = true)
+    private String code; // Unique code for the content item, can be used for identification or linking
 }
