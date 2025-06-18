@@ -28,7 +28,9 @@ services:
 
   frontend:
     build:
-      context: ../../testing/keep-u-test
+
+      context: ../../Frontend/FrontEnd
+
       dockerfile: Dockerfile
     container_name: keepu_frontend
     ports:
