@@ -15,12 +15,16 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class WebSecurityConfig {
+public class WebSecurityConfig implements WebMvcConfigurer {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -37,6 +41,13 @@ public class WebSecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**", // rutas públicas
+//                        //.requestMatchers("/api/v1/**", //todas las rutas
+//                                "/api/v1/auth/**",
+                                "/api/v1/uploads/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**",
                                 "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permitir solicitudes preflight
@@ -60,5 +71,16 @@ public class WebSecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // Obtener la ruta absoluta del directorio del proyecto
+        String uploadsPath = System.getProperty("user.dir") + "/uploads/";
+
+        registry.addResourceHandler("/api/v1/uploads/**")
+                .addResourceLocations("file:" + uploadsPath);
+
+        registry.addResourceHandler("/api/v1/profilePics/**")
+                .addResourceLocations("file:" + uploadsPath + "profilePics/");
     }
 }

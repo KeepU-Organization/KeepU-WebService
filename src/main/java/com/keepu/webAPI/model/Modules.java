@@ -24,4 +24,12 @@ public class Modules {
     @ManyToOne(optional = false)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
+
+    @Column(name= "image_url", length = 255)
+    private String imageUrl;
+
+    @Column(name = "duration", nullable = false)
+    private int duration; // Duration in minutes
+    @Column(name="code", length = 50, unique = true)
+    private String code;
 }

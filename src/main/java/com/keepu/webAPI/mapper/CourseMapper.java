@@ -5,6 +5,8 @@ import com.keepu.webAPI.dto.response.CourseResponse;
 import com.keepu.webAPI.model.Course;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class CourseMapper {
 
@@ -17,7 +19,9 @@ public class CourseMapper {
                 course.getTitle(),
                 course.getDescription(),
                 course.getDifficultyLevel(),
-                course.isPremium()
+                course.isPremium(),
+                course.getImageUrl(),
+                course.getCode()
         );
     }
 
@@ -31,6 +35,17 @@ public class CourseMapper {
         course.setDescription(request.description());
         course.setDifficultyLevel(request.difficultyLevel());
         course.setPremium(request.isPremium());
+        course.setImageUrl(request.imageUrl());
+        course.setCode(request.code());
         return course;
+    }
+
+    public List<CourseResponse> toCourseResponseList(List<Course> courses) {
+        if (courses == null || courses.isEmpty()) {
+            return List.of();
+        }
+        return courses.stream()
+                .map(this::toCourseResponse)
+                .toList();
     }
 }
