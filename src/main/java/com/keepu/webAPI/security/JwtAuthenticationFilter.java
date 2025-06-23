@@ -35,10 +35,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException, java.io.IOException {
 
+        // Ignorar preflight requests (CORS)
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return;
+        }
 
         final String authHeader = request.getHeader("Authorization");
-
-
         final String jwt;
         final String username;
 
@@ -58,28 +61,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
-                // Cargar usuario desde la base de datos
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                // Validar token
                 if (jwtService.isTokenValid(jwt, userDetails)) {
-
-                    // Extraer el rol del token JWT
                     String role = jwtService.getRoleFromToken(jwt);
+                    Collection<GrantedAuthority> authorities =
+                            Collections.singletonList(new SimpleGrantedAuthority(role));
 
-                    // Crear autenticación con el rol del token
-                    Collection<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                            userDetails,
-                            null,
-                            authorities
-                    );
-
-                    // Establecer detalles adicionales
+                    UsernamePasswordAuthenticationToken authToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                    SecurityContextHolder.getContext().setAuthentication(authToken);;
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
                 } else {
                     log.warn("Token validation failed for user: {}", username);
                 }
@@ -87,13 +79,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.error("User not found: {}", username);
             } catch (Exception e) {
                 log.error("Error during JWT authentication: {}", e.getMessage(), e);
-            }
-        } else {
-            if (username == null) {
-                log.debug("Username is null");
-            }
-            if (SecurityContextHolder.getContext().getAuthentication() != null) {
-                log.debug("Authentication already exists in context");
             }
         }
 
