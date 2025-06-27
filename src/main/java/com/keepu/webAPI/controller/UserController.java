@@ -1,11 +1,8 @@
 package com.keepu.webAPI.controller;
 
-import com.keepu.webAPI.dto.request.CreateChildrenRequest;
-import com.keepu.webAPI.dto.request.CreateParentRequest;
-import com.keepu.webAPI.dto.request.CreateUserRequest;
+import com.keepu.webAPI.dto.request.*;
 import com.keepu.webAPI.dto.response.UserResponse;
 import com.keepu.webAPI.exception.UserNotFoundException;
-import com.keepu.webAPI.dto.request.ChangePasswordRequest;
 import com.keepu.webAPI.model.Parent;
 import com.keepu.webAPI.model.User;
 import com.keepu.webAPI.model.UserAuth;
@@ -24,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -181,13 +180,37 @@ public class UserController {
         userService.changePassword(request);
         return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
-
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok("Usuario eliminado correctamente.");
     }
+
+    @Operation(
+            summary = "Update a user's basic information",
+            description = "Updates name, last name, email, and 2FA status of a user.",
+            tags = {"user", "put"}
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User updated successfully",
+                    content = {@Content(schema = @Schema(implementation = UserResponse.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", description = "User not found"),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error")
+    })
+    @PutMapping(value = "/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long userId,
+            @ModelAttribute UpdateUserRequest request,
+            @RequestPart(required = false) MultipartFile profilePicture
+    ) throws IOException {
+        UserResponse updatedUser = userService.updateUser(userId, request, profilePicture);
+        return ResponseEntity.ok(updatedUser);
+    }
+
+
+
+
 
 
 }

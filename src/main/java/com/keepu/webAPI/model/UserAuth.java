@@ -45,7 +45,5 @@ public class UserAuth {
         }
     }
 
-    public void setId(Long userId) {
 
-    }
 }

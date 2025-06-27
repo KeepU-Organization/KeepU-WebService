@@ -16,4 +16,6 @@ public interface UserAuthRespository extends JpaRepository<UserAuth, Long> {
 
     @Query("SELECT ua FROM UserAuth ua WHERE ua.user.id = :userId")
     Optional<UserAuth> findByUserId(Long userId);
+
+
 }

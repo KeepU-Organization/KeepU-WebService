@@ -1,6 +1,7 @@
 package com.keepu.webAPI.model;
 
 import com.keepu.webAPI.model.enums.UserType;
+import io.swagger.v3.oas.models.info.Contact;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,8 +40,6 @@ public class User {
     private boolean darkMode;
 
     private boolean isActive=false;
-
-
 
 
 }

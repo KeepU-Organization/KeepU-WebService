@@ -37,6 +37,8 @@ public class AuthCodeService {
         AuthCode authCode = authCodeMapper.toAuthCodeEntity(request, user);
         AuthCode savedAuthCode = authCodeRepository.save(authCode);
 
+        System.out.println("Código de verificación generado para " + user.getUser().getEmail() + ": " + savedAuthCode.getCode());
+
         return authCodeMapper.toAuthCodeResponse(savedAuthCode);
     }
     @Transactional
