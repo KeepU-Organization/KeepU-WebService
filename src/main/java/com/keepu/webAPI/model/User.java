@@ -26,7 +26,7 @@ public class User {
     private String lastNames;
 
     @Column(name = "profile_picture", length = 255)
-    private String profilePicture;
+    private String profilePicture="uploads/profilePics/default.jpg";
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

@@ -17,5 +17,11 @@ public record CreateCourseRequest(
         int difficultyLevel,
 
         @NotNull(message = "isPremium cannot be null")
-        boolean isPremium
+        boolean isPremium,
+
+        @NotBlank(message = "Image URL cannot be blank")
+        @Size(max = 255, message = "Image URL cannot exceed 255 characters")
+        String imageUrl,
+        @NotNull(message = "El código no puede ser nulo")
+        String code
 ) {}

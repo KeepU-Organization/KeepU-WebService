@@ -23,4 +23,9 @@ public class Course {
 
     @Column(name = "is_premium", nullable = false)
     private boolean isPremium;
+    @Column(name="image_url", length = 255)
+    private String imageUrl;
+
+    @Column(name="code", length = 50, unique = true)
+    private String code;
 }

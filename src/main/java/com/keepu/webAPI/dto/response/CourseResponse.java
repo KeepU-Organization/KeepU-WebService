@@ -5,5 +5,7 @@ public record CourseResponse(
         String title,
         String description,
         Integer difficultyLevel,
-        Boolean isPremium
+        Boolean isPremium,
+        String imageUrl,
+        String code
 ) {}
