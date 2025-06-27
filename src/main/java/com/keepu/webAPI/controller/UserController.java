@@ -181,11 +181,13 @@ public class UserController {
         userService.changePassword(request);
         return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
+
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok("Usuario eliminado correctamente.");
     }
+
 
 }
