@@ -49,7 +49,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**",
-                                "/swagger-ui/**", "/swagger-ui.html", "/api/v1/huggingface/**", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui/**", "/swagger-ui.html", "/api/v1/openrouter/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permitir solicitudes preflight
                         .anyRequest().authenticated()
                 )
