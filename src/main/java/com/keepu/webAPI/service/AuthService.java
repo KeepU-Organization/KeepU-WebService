@@ -37,6 +37,18 @@ public class AuthService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado"));
 
         // Check if the password matches
+
+
+
+        // Check if the password matches
+        System.out.println("Contraseña recibida (frontend): " + password);
+        System.out.println("Contraseña en BD (hasheada): " + user.getPassword());
+        System.out.println("Coinciden?: " + passwordEncoder.matches(password, user.getPassword()));
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new InvalidCredentialsException("Credenciales inválidas");
+        }
+
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidCredentialsException("Credenciales inválidas");
         }

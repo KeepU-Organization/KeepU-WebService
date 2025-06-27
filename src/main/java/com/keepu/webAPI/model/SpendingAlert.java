@@ -16,7 +16,13 @@ public class SpendingAlert {
     private Integer id;
 
     private Integer userId;
+
+    //Tipo de transferencia
     private String category;
+
+    //Limite
     private Double threshold;
+
+
     private Boolean active;
 }

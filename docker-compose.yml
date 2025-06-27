@@ -16,6 +16,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile
+    volumes:
+        - ./uploads:/uploads
     container_name: keepu_backend
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/keepu_db

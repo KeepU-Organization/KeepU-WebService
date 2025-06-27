@@ -14,19 +14,27 @@ import com.keepu.webAPI.model.enums.WalletType;
 import com.keepu.webAPI.repository.*;
 import com.keepu.webAPI.exception.InvalidPasswordException;
 import com.keepu.webAPI.utils.EmailPasswordValidator;
+import org.springframework.web.multipart.MultipartFile;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import com.keepu.webAPI.utils.ImageValidator;
+import com.keepu.webAPI.exception.ResourceNotFoundException;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -178,32 +186,35 @@ public class UserService {
 
         try {
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            String relativePath = "uploads/profilePics/" + fileName;
-            String uploadDir = "src/main/java/com/keepu/webAPI/" + relativePath;
 
-            File directory = new File("src/main/java/com/keepu/webAPI/uploads/profilePics");
+            // ✅ Ruta del directorio, separada de la ruta del archivo
+            String folderPath = "uploads/profilePics";
+            File directory = new File(folderPath);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
-            Path filePath = Paths.get(uploadDir);
+            // ✅ Ruta completa del archivo (donde se guardará)
+            Path filePath = Paths.get(folderPath, fileName);
             Files.write(filePath, file.getBytes());
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
+            // ✅ Borra la foto anterior si no es la por defecto
             if (user.getProfilePicture() != null && !user.getProfilePicture().equals("uploads/profilePics/default.png")) {
-                Path oldPath = Paths.get("src/main/java/com/keepu/webAPI/", user.getProfilePicture());
+                Path oldPath = Paths.get(user.getProfilePicture());
                 Files.deleteIfExists(oldPath);
             }
 
-            user.setProfilePicture(relativePath);
+            // ✅ Guarda la nueva ruta relativa del archivo
+            user.setProfilePicture(filePath.toString());
             userRepository.save(user);
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
         }
     }
-
 
 
     @Transactional
@@ -279,6 +290,91 @@ public class UserService {
         userRepository.save(user);
         userAuthRespository.save(auth);
     }
+
+
+    //borrar esto
+
+    @PostConstruct
+    public void init() {
+        printAllUserPasswords(); // Se ejecuta una vez al iniciar Spring Boot
+    }
+
+    public void printAllUserPasswords() {
+        List<UserAuth> auths = userAuthRespository.findAll();
+        for (UserAuth auth : auths) {
+            System.out.println("ID: " + auth.getUser().getId() +
+                    " | Email: " + auth.getUser().getEmail() +
+                    " | Password (hashed): " + auth.getPassword());
+        }
+    }
+    //
+
+    public UserResponse updateUser(Long userId, UpdateUserRequest request, MultipartFile profilePicture) throws IOException {
+        // Buscar usuario
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Buscar userAuth asociado
+        UserAuth userAuth = userAuthRespository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("UserAuth not found"));
+
+        // Actualizar campos si están presentes
+        if (request.name() != null) user.setName(request.name());
+        if (request.lastName() != null) user.setLastNames(request.lastName());
+
+        if (request.email() != null) {
+            user.setEmail(request.email());
+            userAuth.getUser().setEmail(request.email()); // sincroniza también en UserAuth
+        }
+
+        if (request.enable2FA() != null) {
+            userAuth.setHas2FA(request.enable2FA());
+        }
+
+        if (request.password() != null && !request.password().isBlank()) {
+            userAuth.setPassword(passwordEncoder.encode(request.password()));
+        }
+
+        if (profilePicture != null && !profilePicture.isEmpty()) {
+            String imagePath = saveImage(profilePicture);
+            user.setProfilePicture(imagePath); // Se guarda ruta relativa en DB
+        }
+
+
+        userRepository.save(user);
+        userAuthRespository.save(userAuth);
+
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getLastNames(),
+                user.getProfilePicture(),
+                user.getUserType(),
+                user.getEmail(),
+                user.isDarkMode(),
+                null, // cantidadHijos
+                null  // cantidadObjetivos
+        );
+
+
+        //guardar imagen
+
+
+    }
+
+    private String saveImage (MultipartFile image) throws IOException {
+        String uploadDir = "uploads/profilePics/";
+        String filename = UUID.randomUUID() + "_" + image.getOriginalFilename();
+        File file = new File(uploadDir + filename);
+        file.getParentFile().mkdirs();
+        try (OutputStream os = new FileOutputStream(file)) {
+            os.write(image.getBytes());
+        }
+        return uploadDir + filename;
+    }
+
+
+
 
 
 }

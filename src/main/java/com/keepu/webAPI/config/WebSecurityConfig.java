@@ -4,6 +4,7 @@ import com.keepu.webAPI.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -18,7 +19,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -36,21 +36,26 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(Customizer.withDefaults()) // Asegúrate de que el filtro de CORS esté habilitado
+                .cors(Customizer.withDefaults()) // Habilitar CORS
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**", // rutas públicas
-//                        //.requestMatchers("/api/v1/**", //todas las rutas
-//                                "/api/v1/auth/**",
+                        .requestMatchers(
+                                "/api/v1/users/**",
+                                "/api/v1/auth/login",
+                                "/api/v1/users/register/**",
                                 "/api/v1/uploads/**",
+                                "/api/v1/auth-codes/**", //quitar
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/v3/api-docs/**").permitAll()
-                        .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**",
-                                "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
-                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permitir solicitudes preflight
+                                "/v3/api-docs/**"
+                        ).permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                        // Solo usuarios autenticados pueden acceder a /api/v1/users/**
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/users/**").hasAnyRole("PADRE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/users/**").hasAnyRole("PADRE", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider)
@@ -64,7 +69,11 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://keepu.netlify.app"));
+        configuration.setAllowedOrigins(List.of(
+                "https://keepu.netlify.app",    // Producción
+                "http://localhost:5173",        // Desarrollo Vite
+                "http://localhost:5174"         // Alternativo si el 5173 está ocupado
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "X-XSRF-TOKEN"));
         configuration.setAllowCredentials(true);
@@ -72,9 +81,9 @@ public class WebSecurityConfig implements WebMvcConfigurer {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // Obtener la ruta absoluta del directorio del proyecto
         String uploadsPath = System.getProperty("user.dir") + "/uploads/";
 
         registry.addResourceHandler("/api/v1/uploads/**")
