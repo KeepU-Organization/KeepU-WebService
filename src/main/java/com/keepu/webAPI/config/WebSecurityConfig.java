@@ -49,7 +49,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/login", "/api/v1/users/register/**",
-                                "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                                "/swagger-ui/**", "/swagger-ui.html", "/api/v1/openrouter/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // Permitir solicitudes preflight
                         .anyRequest().authenticated()
                 )
@@ -64,7 +64,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://keepu.netlify.app"));
+        configuration.setAllowedOrigins(List.of("https://keepu.netlify.app", "http://localhost:3000", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "X-XSRF-TOKEN"));
         configuration.setAllowCredentials(true);

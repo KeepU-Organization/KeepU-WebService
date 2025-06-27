@@ -186,32 +186,35 @@ public class UserService {
 
         try {
             String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-            String relativePath = "uploads/profilePics/" + fileName;
-            String uploadDir = "src/main/java/com/keepu/webAPI/" + relativePath;
 
-            File directory = new File("src/main/java/com/keepu/webAPI/uploads/profilePics");
+            // ✅ Ruta del directorio, separada de la ruta del archivo
+            String folderPath = "uploads/profilePics";
+            File directory = new File(folderPath);
             if (!directory.exists()) {
                 directory.mkdirs();
             }
 
-            Path filePath = Paths.get(uploadDir);
+            // ✅ Ruta completa del archivo (donde se guardará)
+            Path filePath = Paths.get(folderPath, fileName);
             Files.write(filePath, file.getBytes());
 
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
+            // ✅ Borra la foto anterior si no es la por defecto
             if (user.getProfilePicture() != null && !user.getProfilePicture().equals("uploads/profilePics/default.png")) {
-                Path oldPath = Paths.get("src/main/java/com/keepu/webAPI/", user.getProfilePicture());
+                Path oldPath = Paths.get(user.getProfilePicture());
                 Files.deleteIfExists(oldPath);
             }
 
-            user.setProfilePicture(relativePath);
+            // ✅ Guarda la nueva ruta relativa del archivo
+            user.setProfilePicture(filePath.toString());
             userRepository.save(user);
+
         } catch (IOException e) {
             throw new RuntimeException("Error al guardar la imagen: " + e.getMessage(), e);
         }
     }
-
 
 
     @Transactional
