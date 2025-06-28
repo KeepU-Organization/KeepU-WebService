@@ -233,6 +233,17 @@ public class UserService {
         userAuthRespository.save(userAuth);
     }
     @Transactional
+    public void changeSecurityKey(Long userId, String newSecurityKey) {
+        // Buscar el usuario por ID
+        UserAuth userAuth = userAuthRespository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
+
+        // Codificar y guardar la nueva clave de seguridad
+        String encodedNewSecurityKey = passwordEncoder.encode(newSecurityKey);
+        userAuth.setSecurityKey(encodedNewSecurityKey);
+        userAuthRespository.save(userAuth);
+    }
+    @Transactional
     public void deleteUser(Long userId) {
         UserAuth userAuth = userAuthRespository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado."));
