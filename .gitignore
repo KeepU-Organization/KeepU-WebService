@@ -39,3 +39,5 @@ out/
 # Archivos de configuración sensibles
 .env
 src/main/resources/application.properties
+/uploads/profilePics/*
+!/uploads/profilePics/default.jpg
