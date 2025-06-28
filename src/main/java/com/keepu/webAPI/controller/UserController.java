@@ -181,6 +181,20 @@ public class UserController {
         userService.changePassword(request);
         return ResponseEntity.ok("Contraseña actualizada correctamente.");
     }
+    @PutMapping("/{userId}/security-key")
+    public ResponseEntity<String> changeSecurityKey(
+            @PathVariable Long userId,
+            @RequestParam String newSecurityKey) {
+        try {
+            userService.changeSecurityKey(userId, newSecurityKey);
+            return ResponseEntity.ok("Clave de seguridad actualizada correctamente.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error técnico: " + e.getMessage());
+        }
+    }
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<String> deleteUser(@PathVariable Long userId) {
