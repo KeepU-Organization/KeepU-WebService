@@ -8,7 +8,7 @@ public class EmailPasswordValidator {
 
     // Patrón para validar contraseñas
     private static final Pattern PASSWORD_PATTERN =
-            Pattern.compile("^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=])(?=\\S+$).{8,}$");
+            Pattern.compile("^(?=.*[0-9]).{8,}$");
 
     /**
      * Valida si el formato del email es correcto

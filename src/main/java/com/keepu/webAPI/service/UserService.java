@@ -88,10 +88,10 @@ public class UserService {
 
         //validar la validez del codigo
         if (request.invitationCode() == null || request.invitationCode().isEmpty()) {
-            throw new MissingFieldException("Invitation code cannot be empty");
+            throw new MissingFieldException("El código de invitación es obligatorio");
         }
         if (!invitationCodesService.isInvitationCodeValid(request.invitationCode())) {
-            throw new InvalidInvitationCodeException("Invalid invitation code");
+            throw new InvalidInvitationCodeException("Código de invitación inválido o ya utilizado");
         }
 
         // Crear y guardar el usuario base
@@ -149,8 +149,7 @@ public class UserService {
         // Validar formato de contraseña
         if (!EmailPasswordValidator.isValidPassword(password)) {
             throw new InvalidPasswordFormatException(
-                    "Password must be at least 8 characters long and contain at least one digit, " +
-                            "one lowercase letter, one uppercase letter, one special character, and no spaces."
+                    "La contraseña debe tener al menos 8 caracteres y un número"
             );
         }
         return passwordEncoder.encode(password);
@@ -158,7 +157,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
         Parent parent = parentRepository.findByUserId(userId);
         Children child = childrenRepository.findByUserId(userId);
